@@ -40,6 +40,14 @@ $cat_url       = home_url( "/{$cat}/" );
 $converter_url = home_url( "/{$cat}/{$from}-to-{$to}/" );
 $reverse_url   = home_url( "/{$cat}/{$to}-to-{$from}/" );
 
+// Context array passed to template sections for placeholder replacement
+$section_ctx = [
+	'from'   => $from_l,
+	'to'     => $to_l_p,
+	'value'  => (string) $v_str,
+	'result' => $result,
+];
+
 // Breadcrumbs (consumed by template-parts/breadcrumbs.php via $GLOBALS['uw_crumbs'])
 $GLOBALS['uw_crumbs'] = [
 	[ 'label' => __( 'Home', 'unitwise-theme' ), 'url' => home_url( '/' ) ],
@@ -70,6 +78,13 @@ $GLOBALS['uw_crumbs'] = [
 			<?php echo esc_html( "{$v_str} {$from_sym} = {$result} {$to_sym}" ); ?>
 		</p>
 	</section>
+
+	<?php
+	// --- INJECTION POINT: after_hero ---
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		Unitwise_Value_Pages::render_sections( 'after_hero', $section_ctx );
+	}
+	?>
 
 	<!-- Interactive converter (pre-filled with this page's value) -->
 	<section class="vp-section" aria-label="<?php esc_attr_e( 'Convert another value', 'unitwise-theme' ); ?>">
@@ -111,6 +126,13 @@ $GLOBALS['uw_crumbs'] = [
 		</p>
 	</section>
 
+	<?php
+	// --- INJECTION POINT: after_converter ---
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		Unitwise_Value_Pages::render_sections( 'after_converter', $section_ctx );
+	}
+	?>
+
 	<!-- Formula -->
 	<section class="vp-section" aria-label="<?php esc_attr_e( 'Formula', 'unitwise-theme' ); ?>">
 		<h2 class="vp-section__title"><?php esc_html_e( 'Formula', 'unitwise-theme' ); ?></h2>
@@ -129,6 +151,13 @@ $GLOBALS['uw_crumbs'] = [
 			); ?>
 		</p>
 	</section>
+
+	<?php
+	// --- INJECTION POINT: after_formula ---
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		Unitwise_Value_Pages::render_sections( 'after_formula', $section_ctx );
+	}
+	?>
 
 	<!-- Reference table of nearby values -->
 	<?php $table_values = Unitwise_Engine::default_table_values( $from ); ?>
@@ -175,6 +204,13 @@ $GLOBALS['uw_crumbs'] = [
 		</div>
 	</section>
 
+	<?php
+	// --- INJECTION POINT: after_table ---
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		Unitwise_Value_Pages::render_sections( 'after_table', $section_ctx );
+	}
+	?>
+
 	<!-- Related converters -->
 	<section class="vp-section vp-related" aria-label="<?php esc_attr_e( 'Related converters', 'unitwise-theme' ); ?>">
 		<h2 class="vp-section__title"><?php esc_html_e( 'Related Converters', 'unitwise-theme' ); ?></h2>
@@ -204,6 +240,20 @@ $GLOBALS['uw_crumbs'] = [
 			</li>
 		</ul>
 	</section>
+
+	<?php
+	// --- INJECTION POINT: after_related ---
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		Unitwise_Value_Pages::render_sections( 'after_related', $section_ctx );
+	}
+	?>
+
+	<?php
+	// --- INJECTION POINT: before_faq ---
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		Unitwise_Value_Pages::render_sections( 'before_faq', $section_ctx );
+	}
+	?>
 
 	<!-- FAQ -->
 	<?php

@@ -1325,3 +1325,39 @@ ul, ol { padding-left: 1.5em; }
 	font-weight: 500;
 }
 .vp-related__list a:hover { text-decoration: underline; }
+
+/* --------------------------------------------------------------------------
+   Value page — custom template sections (added via Template Sections manager)
+   -------------------------------------------------------------------------- */
+.vp-custom-section {
+	background: var(--uw-surface);
+	border: 1px solid var(--uw-border);
+	border-radius: var(--uw-radius-md);
+	padding: var(--uw-space-6) var(--uw-space-8);
+	margin-bottom: var(--uw-space-8);
+}
+.vp-custom-section .vp-section__title {
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--uw-text);
+	margin-top: 0;
+	margin-bottom: var(--uw-space-4);
+}
+.vp-custom-section__body {
+	font-size: 0.97rem;
+	line-height: var(--uw-line-height);
+	color: var(--uw-text);
+}
+.vp-custom-section__body p { margin: 0 0 var(--uw-space-3); }
+.vp-custom-section__body p:last-child { margin-bottom: 0; }
+.vp-custom-section__body ul,
+.vp-custom-section__body ol {
+	margin: 0 0 var(--uw-space-3);
+	padding-left: var(--uw-space-6);
+}
+.vp-custom-section__body a { color: var(--uw-primary); }
+.vp-custom-section__body a:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+	.vp-custom-section { padding: var(--uw-space-4); }
+}

@@ -1,15 +1,16 @@
 <?php
 /**
- * Value Pages — programmatic page generator and template router.
+ * Value Pages — programmatic page generator, template router, and section manager.
  *
- * Mirrors the Date-Time-Calculator-Theme pattern exactly:
- * - Native WP `page` posts flagged with _uw_value_page = '1' meta
- * - Admin UI: keyword textarea → save as drafts → publish table
- * - template_include filter routes to single-unitwise_value_page.php in theme
- * - SEO tags and JSON-LD output via wp_head
+ * Admin UI has four sections:
+ *  1. Generate  — keyword textarea → save as drafts
+ *  2. Drafts    — table of draft pages (publish / delete per row, publish-all button)
+ *  3. Published — table of live pages (edit / trash per row)
+ *  4. Template Sections — add/edit/toggle custom content blocks that appear on
+ *                          every value page at a configurable position
  *
- * URL: /{value}-{from-label}-to-{to-plural}/   (root-level, no /weight/ prefix)
- * e.g. /1-gram-to-milligrams/  /100-grams-to-kilograms/
+ * URL pattern: /{value}-{from-label}-to-{to-plural}/  (root-level, no /weight/ prefix)
+ * e.g.  /1-gram-to-milligrams/  /100-grams-to-kilograms/
  *
  * PLUGIN LAYER.
  */
@@ -20,16 +21,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Unitwise_Value_Pages {
 
-	const META_FLAG = '_uw_value_page';
-	const META_VAL  = '_uw_vp_value';
-	const META_FROM = '_uw_vp_from';
-	const META_TO   = '_uw_vp_to';
-	const META_CAT  = '_uw_vp_cat';
-	const CACHE_KEY = 'uw_value_pages_data';
+	const META_FLAG       = '_uw_value_page';
+	const META_VAL        = '_uw_vp_value';
+	const META_FROM       = '_uw_vp_from';
+	const META_TO         = '_uw_vp_to';
+	const META_CAT        = '_uw_vp_cat';
+	const CACHE_KEY       = 'uw_value_pages_data';
+	const SECTIONS_OPTION = 'uw_vp_sections';
+
+	/** Insertion positions available inside the value-page template. */
+	private static array $positions = [
+		'after_hero'      => 'After Answer Block',
+		'after_converter' => 'After Converter Widget',
+		'after_formula'   => 'After Formula',
+		'after_table'     => 'After Conversion Table',
+		'after_related'   => 'After Related Converters',
+		'before_faq'      => 'Before FAQ',
+	];
 
 	/**
 	 * Label / abbreviation → canonical plural slug.
-	 * Accepts both singular and plural forms plus common symbols.
 	 */
 	private static array $label_map = [
 		'gram'      => 'grams',      'grams'      => 'grams',
@@ -57,17 +68,20 @@ class Unitwise_Value_Pages {
 	// Bootstrap
 
 	public static function init(): void {
-		add_action( 'admin_menu',                   [ __CLASS__, 'register_menu' ] );
-		add_action( 'admin_post_uw_vp_generate',    [ __CLASS__, 'handle_generate' ] );
-		add_action( 'admin_post_uw_vp_publish_all', [ __CLASS__, 'handle_publish_all' ] );
-		add_action( 'admin_post_uw_vp_publish_one', [ __CLASS__, 'handle_publish_one' ] );
-		add_action( 'admin_post_uw_vp_delete',      [ __CLASS__, 'handle_delete' ] );
-		add_filter( 'template_include',             [ __CLASS__, 'route_template' ] );
-		add_action( 'wp_enqueue_scripts',           [ __CLASS__, 'enqueue_assets' ] );
-		add_action( 'wp_head',                      [ __CLASS__, 'output_seo' ], 1 );
-		add_action( 'save_post_page',               [ __CLASS__, 'bust_cache' ] );
-		add_action( 'trashed_post',                 [ __CLASS__, 'bust_cache' ] );
-		add_action( 'deleted_post',                 [ __CLASS__, 'bust_cache' ] );
+		add_action( 'admin_menu',                      [ __CLASS__, 'register_menu' ] );
+		add_action( 'admin_post_uw_vp_generate',       [ __CLASS__, 'handle_generate' ] );
+		add_action( 'admin_post_uw_vp_publish_all',    [ __CLASS__, 'handle_publish_all' ] );
+		add_action( 'admin_post_uw_vp_publish_one',    [ __CLASS__, 'handle_publish_one' ] );
+		add_action( 'admin_post_uw_vp_delete',         [ __CLASS__, 'handle_delete' ] );
+		add_action( 'admin_post_uw_vp_save_section',   [ __CLASS__, 'handle_save_section' ] );
+		add_action( 'admin_post_uw_vp_delete_section', [ __CLASS__, 'handle_delete_section' ] );
+		add_action( 'admin_post_uw_vp_toggle_section', [ __CLASS__, 'handle_toggle_section' ] );
+		add_filter( 'template_include',                [ __CLASS__, 'route_template' ] );
+		add_action( 'wp_enqueue_scripts',              [ __CLASS__, 'enqueue_assets' ] );
+		add_action( 'wp_head',                         [ __CLASS__, 'output_seo' ], 1 );
+		add_action( 'save_post_page',                  [ __CLASS__, 'bust_cache' ] );
+		add_action( 'trashed_post',                    [ __CLASS__, 'bust_cache' ] );
+		add_action( 'deleted_post',                    [ __CLASS__, 'bust_cache' ] );
 	}
 
 	// -------------------------------------------------------------------------
@@ -85,6 +99,10 @@ class Unitwise_Value_Pages {
 		);
 	}
 
+	// =========================================================================
+	// Admin page renderer
+	// =========================================================================
+
 	public static function render_admin_page(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
@@ -93,28 +111,57 @@ class Unitwise_Value_Pages {
 		$drafts       = self::get_pages_by_status( 'draft' );
 		$published    = self::get_pages_by_status( 'publish' );
 		$all_keywords = self::get_standard_keywords();
+		$sections     = self::get_sections();
 		$admin_url    = esc_url( admin_url( 'admin-post.php' ) );
 
-		// Flash messages from redirect params
+		// Which section are we editing right now?
+		$editing_id = sanitize_key( $_GET['edit_section'] ?? '' );
+		$edit_data  = null;
+		if ( $editing_id ) {
+			foreach ( $sections as $s ) {
+				if ( $s['id'] === $editing_id ) {
+					$edit_data = $s;
+					break;
+				}
+			}
+		}
+
+		// Flash notices from redirect params
 		$notice = '';
 		if ( ! empty( $_GET['uw_created'] ) ) {
 			$n      = (int) $_GET['uw_created'];
-			$notice = "<div class='notice notice-success is-dismissible'><p>" . sprintf( esc_html__( 'Created %d draft page(s).', 'unitwise-converters' ), $n ) . '</p></div>';
+			$notice = "<div class='notice notice-success is-dismissible'><p>"
+				. sprintf( esc_html__( 'Created %d draft page(s).', 'unitwise-converters' ), $n )
+				. '</p></div>';
 		} elseif ( ! empty( $_GET['uw_published'] ) ) {
 			$n      = (int) $_GET['uw_published'];
-			$notice = "<div class='notice notice-success is-dismissible'><p>" . sprintf( esc_html__( 'Published %d page(s).', 'unitwise-converters' ), $n ) . '</p></div>';
+			$notice = "<div class='notice notice-success is-dismissible'><p>"
+				. sprintf( esc_html__( 'Published %d page(s).', 'unitwise-converters' ), $n )
+				. '</p></div>';
 		} elseif ( ! empty( $_GET['uw_deleted'] ) ) {
-			$notice = "<div class='notice notice-success is-dismissible'><p>" . esc_html__( 'Page moved to trash.', 'unitwise-converters' ) . '</p></div>';
+			$notice = "<div class='notice notice-success is-dismissible'><p>"
+				. esc_html__( 'Page moved to trash.', 'unitwise-converters' )
+				. '</p></div>';
+		} elseif ( ! empty( $_GET['uw_section_saved'] ) ) {
+			$notice = "<div class='notice notice-success is-dismissible'><p>"
+				. esc_html__( 'Section saved.', 'unitwise-converters' )
+				. '</p></div>';
+		} elseif ( ! empty( $_GET['uw_section_deleted'] ) ) {
+			$notice = "<div class='notice notice-success is-dismissible'><p>"
+				. esc_html__( 'Section deleted.', 'unitwise-converters' )
+				. '</p></div>';
 		}
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'UnitWise Value Pages', 'unitwise-converters' ); ?></h1>
 			<p style="color:#666;max-width:680px;">
-				<?php esc_html_e( 'Generate SEO pages like "/1-gram-to-milligrams/" that directly answer specific conversion searches. Pages are stored as WordPress drafts until you publish them.', 'unitwise-converters' ); ?>
+				<?php esc_html_e( 'Generate SEO pages like "/1-gram-to-milligrams/" that directly answer specific conversion searches. Use Template Sections to add custom content blocks that appear on every value page.', 'unitwise-converters' ); ?>
 			</p>
 			<?php echo wp_kses_post( $notice ); ?>
 
-			<!-- SECTION 1: Generate -->
+			<!-- ================================================================
+			     SECTION 1: Generate pages
+			     ================================================================ -->
 			<div class="postbox" style="margin-top:20px;">
 				<div class="postbox-header">
 					<h2 class="hndle"><?php esc_html_e( 'Generate Pages', 'unitwise-converters' ); ?></h2>
@@ -140,7 +187,9 @@ class Unitwise_Value_Pages {
 				</div>
 			</div>
 
-			<!-- SECTION 2: Drafts -->
+			<!-- ================================================================
+			     SECTION 2: Drafts
+			     ================================================================ -->
 			<div class="postbox">
 				<div class="postbox-header">
 					<h2 class="hndle">
@@ -201,7 +250,9 @@ class Unitwise_Value_Pages {
 				</div>
 			</div>
 
-			<!-- SECTION 3: Published -->
+			<!-- ================================================================
+			     SECTION 3: Published pages
+			     ================================================================ -->
 			<div class="postbox">
 				<div class="postbox-header">
 					<h2 class="hndle">
@@ -253,20 +304,196 @@ class Unitwise_Value_Pages {
 					<?php endif; ?>
 				</div>
 			</div>
-		</div>
+
+			<!-- ================================================================
+			     SECTION 4: Template Sections manager
+			     Add/edit/delete custom content blocks that appear on every
+			     value page at a configurable position.
+			     ================================================================ -->
+			<div class="postbox" id="uw-template-sections-box">
+				<div class="postbox-header">
+					<h2 class="hndle"><?php esc_html_e( 'Template Sections', 'unitwise-converters' ); ?></h2>
+				</div>
+				<div class="inside">
+					<p style="color:#666;max-width:640px;">
+						<?php esc_html_e( 'Custom content blocks that appear on every value page. Choose where each section is injected and toggle sections active/inactive without deleting them.', 'unitwise-converters' ); ?>
+					</p>
+
+					<?php if ( $sections ) : ?>
+					<table class="wp-list-table widefat fixed striped" style="margin-bottom:20px;">
+						<thead>
+							<tr>
+								<th style="width:30%;"><?php esc_html_e( 'Section Title', 'unitwise-converters' ); ?></th>
+								<th><?php esc_html_e( 'Position', 'unitwise-converters' ); ?></th>
+								<th style="width:80px;"><?php esc_html_e( 'Status', 'unitwise-converters' ); ?></th>
+								<th style="width:180px;"><?php esc_html_e( 'Actions', 'unitwise-converters' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $sections as $sec ) :
+								$pos_label = self::$positions[ $sec['position'] ] ?? $sec['position'];
+								$edit_link = admin_url( 'admin.php?page=uw-value-pages&edit_section=' . rawurlencode( $sec['id'] ) . '#uw-section-form' );
+							?>
+							<tr id="uw-sec-row-<?php echo esc_attr( $sec['id'] ); ?>">
+								<td><strong><?php echo esc_html( $sec['title'] ); ?></strong></td>
+								<td><?php echo esc_html( $pos_label ); ?></td>
+								<td>
+									<?php if ( $sec['enabled'] ) : ?>
+										<span style="color:#00a32a;font-weight:600;"><?php esc_html_e( 'Active', 'unitwise-converters' ); ?></span>
+									<?php else : ?>
+										<span style="color:#888;"><?php esc_html_e( 'Inactive', 'unitwise-converters' ); ?></span>
+									<?php endif; ?>
+								</td>
+								<td>
+									<!-- Edit button: fills form below via JS -->
+									<a href="<?php echo esc_url( $edit_link ); ?>"
+									   class="button button-small uw-edit-section"
+									   data-id="<?php echo esc_attr( $sec['id'] ); ?>"
+									   data-title="<?php echo esc_attr( $sec['title'] ); ?>"
+									   data-position="<?php echo esc_attr( $sec['position'] ); ?>"
+									   data-content="<?php echo esc_attr( $sec['content'] ); ?>"
+									   data-enabled="<?php echo $sec['enabled'] ? '1' : '0'; ?>">
+										<?php esc_html_e( 'Edit', 'unitwise-converters' ); ?>
+									</a>
+									&nbsp;
+									<!-- Toggle active/inactive -->
+									<form method="post" action="<?php echo $admin_url; ?>" style="display:inline;">
+										<?php wp_nonce_field( 'uw_vp_toggle_section', 'uw_nonce' ); ?>
+										<input type="hidden" name="action" value="uw_vp_toggle_section">
+										<input type="hidden" name="section_id" value="<?php echo esc_attr( $sec['id'] ); ?>">
+										<button type="submit" class="button button-small">
+											<?php echo $sec['enabled']
+												? esc_html__( 'Disable', 'unitwise-converters' )
+												: esc_html__( 'Enable',  'unitwise-converters' ); ?>
+										</button>
+									</form>
+									&nbsp;
+									<!-- Delete -->
+									<form method="post" action="<?php echo $admin_url; ?>" style="display:inline;"
+										onsubmit="return confirm('<?php echo esc_js( __( 'Delete this section?', 'unitwise-converters' ) ); ?>')">
+										<?php wp_nonce_field( 'uw_vp_delete_section', 'uw_nonce' ); ?>
+										<input type="hidden" name="action" value="uw_vp_delete_section">
+										<input type="hidden" name="section_id" value="<?php echo esc_attr( $sec['id'] ); ?>">
+										<button type="submit" class="button button-small" style="color:#b32d2e;">
+											<?php esc_html_e( 'Delete', 'unitwise-converters' ); ?>
+										</button>
+									</form>
+								</td>
+							</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+					<?php else : ?>
+						<p style="color:#888;margin-bottom:16px;"><?php esc_html_e( 'No template sections yet. Add one below.', 'unitwise-converters' ); ?></p>
+					<?php endif; ?>
+
+					<!-- Add / Edit section form -->
+					<div id="uw-section-form"
+					     style="background:#f9f9f9;border:1px solid #ddd;border-radius:4px;padding:20px;">
+						<h3 style="margin-top:0;" id="uw-section-form-heading">
+							<?php echo $edit_data
+								? esc_html__( 'Edit Section', 'unitwise-converters' )
+								: esc_html__( 'Add New Section', 'unitwise-converters' ); ?>
+						</h3>
+						<form method="post" action="<?php echo $admin_url; ?>">
+							<?php wp_nonce_field( 'uw_vp_save_section', 'uw_nonce' ); ?>
+							<input type="hidden" name="action" value="uw_vp_save_section">
+							<!-- Populated by JS when editing an existing section -->
+							<input type="hidden" name="section_id" id="uw-sec-id"
+							       value="<?php echo esc_attr( $edit_data['id'] ?? '' ); ?>">
+
+							<table class="form-table" role="presentation" style="margin-top:0;">
+								<tr>
+									<th scope="row" style="width:160px;">
+										<label for="uw-sec-title"><?php esc_html_e( 'Section Title', 'unitwise-converters' ); ?></label>
+									</th>
+									<td>
+										<input type="text" id="uw-sec-title" name="section_title"
+										       class="regular-text"
+										       value="<?php echo esc_attr( $edit_data['title'] ?? '' ); ?>"
+										       placeholder="<?php esc_attr_e( 'e.g. Pro Tips, Did You Know?', 'unitwise-converters' ); ?>">
+									</td>
+								</tr>
+								<tr>
+									<th scope="row">
+										<label for="uw-sec-position"><?php esc_html_e( 'Position', 'unitwise-converters' ); ?></label>
+									</th>
+									<td>
+										<select id="uw-sec-position" name="section_position">
+											<?php foreach ( self::$positions as $key => $label ) : ?>
+												<option value="<?php echo esc_attr( $key ); ?>"
+												<?php selected( $edit_data['position'] ?? '', $key ); ?>>
+													<?php echo esc_html( $label ); ?>
+												</option>
+											<?php endforeach; ?>
+										</select>
+										<p class="description"><?php esc_html_e( 'Where this section appears on every value page.', 'unitwise-converters' ); ?></p>
+									</td>
+								</tr>
+								<tr>
+									<th scope="row">
+										<label for="uw-sec-content"><?php esc_html_e( 'Content', 'unitwise-converters' ); ?></label>
+									</th>
+									<td>
+										<textarea id="uw-sec-content" name="section_content"
+										          rows="10"
+										          style="width:100%;font-size:13px;line-height:1.6;"
+										          placeholder="<?php esc_attr_e( 'Enter HTML or plain text. <p>, <ul>, <strong>, <a> and similar tags are supported.', 'unitwise-converters' ); ?>"><?php echo esc_textarea( $edit_data['content'] ?? '' ); ?></textarea>
+										<p class="description"><?php esc_html_e( 'Supports HTML. Use {from}, {to}, {value}, {result} as placeholders — they are replaced at render time.', 'unitwise-converters' ); ?></p>
+									</td>
+								</tr>
+							</table>
+
+							<p style="margin-top:16px;">
+								<button type="submit" class="button button-primary">
+									<?php echo $edit_data
+										? esc_html__( 'Update Section', 'unitwise-converters' )
+										: esc_html__( 'Save Section', 'unitwise-converters' ); ?>
+								</button>
+								<?php if ( $edit_data ) : ?>
+								&nbsp;
+								<a href="<?php echo esc_url( admin_url( 'admin.php?page=uw-value-pages' ) ); ?>"
+								   class="button button-secondary">
+									<?php esc_html_e( 'Cancel', 'unitwise-converters' ); ?>
+								</a>
+								<?php endif; ?>
+							</p>
+						</form>
+					</div><!-- #uw-section-form -->
+				</div>
+			</div><!-- #uw-template-sections-box -->
+
+		</div><!-- .wrap -->
 
 		<script>
+		/* Standard-set fill */
 		document.getElementById('uw-gen-standard').addEventListener('click', function() {
 			var keywords = <?php echo wp_json_encode( $all_keywords ); ?>;
 			document.getElementById('uw-keywords').value = keywords.join('\n');
 			document.getElementById('uw-keywords').focus();
 		});
+
+		/* Edit section — populate form without a page reload */
+		document.querySelectorAll('.uw-edit-section').forEach(function(btn) {
+			btn.addEventListener('click', function(e) {
+				e.preventDefault();
+				var d = this.dataset;
+				document.getElementById('uw-sec-id').value        = d.id;
+				document.getElementById('uw-sec-title').value     = d.title;
+				document.getElementById('uw-sec-position').value  = d.position;
+				document.getElementById('uw-sec-content').value   = d.content;
+				document.getElementById('uw-section-form-heading').textContent =
+					<?php echo wp_json_encode( __( 'Edit Section', 'unitwise-converters' ) ); ?>;
+				document.getElementById('uw-section-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+			});
+		});
 		</script>
 		<?php
 	}
 
-	// -------------------------------------------------------------------------
-	// Form handlers
+	// =========================================================================
+	// Form handlers — pages
+	// =========================================================================
 
 	public static function handle_generate(): void {
 		check_admin_referer( 'uw_vp_generate', 'uw_nonce' );
@@ -283,14 +510,10 @@ class Unitwise_Value_Pages {
 			if ( ! $parsed ) {
 				continue;
 			}
-
 			$slug = self::build_slug( $parsed['value'], $parsed['from'], $parsed['to'] );
-
-			// Idempotency — skip if a page with this slug already exists
 			if ( get_page_by_path( $slug, OBJECT, 'page' ) ) {
 				continue;
 			}
-
 			$id = wp_insert_post( [
 				'post_title'   => self::build_title( $parsed['value'], $parsed['from'], $parsed['to'] ),
 				'post_name'    => $slug,
@@ -298,11 +521,9 @@ class Unitwise_Value_Pages {
 				'post_type'    => 'page',
 				'post_content' => '',
 			] );
-
 			if ( is_wp_error( $id ) || ! $id ) {
 				continue;
 			}
-
 			update_post_meta( $id, self::META_FLAG, '1' );
 			update_post_meta( $id, self::META_VAL,  (string) $parsed['value'] );
 			update_post_meta( $id, self::META_FROM, $parsed['from'] );
@@ -321,14 +542,11 @@ class Unitwise_Value_Pages {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
 		}
-
-		$drafts = self::get_pages_by_status( 'draft' );
-		$count  = 0;
-		foreach ( $drafts as $p ) {
+		$count = 0;
+		foreach ( self::get_pages_by_status( 'draft' ) as $p ) {
 			wp_publish_post( $p->ID );
 			$count++;
 		}
-
 		self::bust_cache();
 		wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages&uw_published=' . $count ) );
 		exit;
@@ -339,13 +557,11 @@ class Unitwise_Value_Pages {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
 		}
-
 		$id = (int) ( $_POST['post_id'] ?? 0 );
 		if ( $id && '1' === get_post_meta( $id, self::META_FLAG, true ) ) {
 			wp_publish_post( $id );
 			self::bust_cache();
 		}
-
 		wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages&uw_published=1' ) );
 		exit;
 	}
@@ -355,24 +571,106 @@ class Unitwise_Value_Pages {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
 		}
-
 		$id = (int) ( $_POST['post_id'] ?? 0 );
 		if ( $id && '1' === get_post_meta( $id, self::META_FLAG, true ) ) {
 			wp_trash_post( $id );
 			self::bust_cache();
 		}
-
 		wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages&uw_deleted=1' ) );
 		exit;
 	}
 
-	// -------------------------------------------------------------------------
-	// Template routing + assets
+	// =========================================================================
+	// Form handlers — template sections
+	// =========================================================================
 
-	/**
-	 * Swap the template for value pages to the theme's dedicated file.
-	 * Plugin only points; theme renders. Maintains plugin/theme separation.
-	 */
+	public static function handle_save_section(): void {
+		check_admin_referer( 'uw_vp_save_section', 'uw_nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
+		}
+
+		$section_id = sanitize_key( wp_unslash( $_POST['section_id'] ?? '' ) );
+		$title      = sanitize_text_field( wp_unslash( $_POST['section_title'] ?? '' ) );
+		$position   = sanitize_key( wp_unslash( $_POST['section_position'] ?? '' ) );
+		$content    = wp_kses_post( wp_unslash( $_POST['section_content'] ?? '' ) );
+
+		if ( ! $title || ! isset( self::$positions[ $position ] ) ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages' ) );
+			exit;
+		}
+
+		$sections = self::get_sections();
+
+		if ( $section_id ) {
+			// Update existing
+			$found = false;
+			foreach ( $sections as &$s ) {
+				if ( $s['id'] === $section_id ) {
+					$s['title']    = $title;
+					$s['position'] = $position;
+					$s['content']  = $content;
+					$found = true;
+					break;
+				}
+			}
+			unset( $s );
+			if ( ! $found ) {
+				wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages' ) );
+				exit;
+			}
+		} else {
+			// Add new
+			$sections[] = [
+				'id'       => 'sec_' . substr( md5( uniqid( '', true ) ), 0, 8 ),
+				'title'    => $title,
+				'position' => $position,
+				'content'  => $content,
+				'enabled'  => true,
+			];
+		}
+
+		self::save_sections( $sections );
+		wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages&uw_section_saved=1' ) );
+		exit;
+	}
+
+	public static function handle_delete_section(): void {
+		check_admin_referer( 'uw_vp_delete_section', 'uw_nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
+		}
+		$section_id = sanitize_key( wp_unslash( $_POST['section_id'] ?? '' ) );
+		$sections   = self::get_sections();
+		$sections   = array_values( array_filter( $sections, fn( $s ) => $s['id'] !== $section_id ) );
+		self::save_sections( $sections );
+		wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages&uw_section_deleted=1' ) );
+		exit;
+	}
+
+	public static function handle_toggle_section(): void {
+		check_admin_referer( 'uw_vp_toggle_section', 'uw_nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'unitwise-converters' ) );
+		}
+		$section_id = sanitize_key( wp_unslash( $_POST['section_id'] ?? '' ) );
+		$sections   = self::get_sections();
+		foreach ( $sections as &$s ) {
+			if ( $s['id'] === $section_id ) {
+				$s['enabled'] = ! $s['enabled'];
+				break;
+			}
+		}
+		unset( $s );
+		self::save_sections( $sections );
+		wp_safe_redirect( admin_url( 'admin.php?page=uw-value-pages&uw_section_saved=1' ) );
+		exit;
+	}
+
+	// =========================================================================
+	// Template routing + assets
+	// =========================================================================
+
 	public static function route_template( string $template ): string {
 		if ( ! is_singular( 'page' ) ) {
 			return $template;
@@ -385,10 +683,6 @@ class Unitwise_Value_Pages {
 		return $t ?: $template;
 	}
 
-	/**
-	 * Enqueue converter CSS + JS on value pages.
-	 * Localizes unitwiseData so the inline converter widget can compute results.
-	 */
 	public static function enqueue_assets(): void {
 		if ( ! is_singular( 'page' ) ) {
 			return;
@@ -397,14 +691,12 @@ class Unitwise_Value_Pages {
 		if ( ! $id || '1' !== get_post_meta( $id, self::META_FLAG, true ) ) {
 			return;
 		}
-
 		wp_enqueue_style(
 			'unitwise-converter',
 			UNITWISE_URL . 'assets/css/converter.css',
 			[],
 			UNITWISE_VERSION
 		);
-
 		$cat = sanitize_key( get_post_meta( $id, self::META_CAT, true ) ?: 'weight' );
 		wp_localize_script(
 			'unitwise-theme',
@@ -416,13 +708,10 @@ class Unitwise_Value_Pages {
 		);
 	}
 
-	// -------------------------------------------------------------------------
+	// =========================================================================
 	// SEO meta tags
+	// =========================================================================
 
-	/**
-	 * Output title/description/OG/Twitter tags for value pages.
-	 * Skips if Rank Math or Yoast is active (they handle it).
-	 */
 	public static function output_seo(): void {
 		if ( defined( 'RANK_MATH_VERSION' ) || defined( 'WPSEO_VERSION' ) ) {
 			return;
@@ -440,7 +729,7 @@ class Unitwise_Value_Pages {
 		$to    = sanitize_key( get_post_meta( $id, self::META_TO, true ) );
 		$cat   = sanitize_key( get_post_meta( $id, self::META_CAT, true ) ?: 'weight' );
 
-		if ( ! $from || !$to || ! class_exists( 'Unitwise_Engine' ) ) {
+		if ( ! $from || ! $to || ! class_exists( 'Unitwise_Engine' ) ) {
 			return;
 		}
 
@@ -469,30 +758,81 @@ class Unitwise_Value_Pages {
 		echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
 	}
 
-	// -------------------------------------------------------------------------
-	// Keyword parser
+	// =========================================================================
+	// Template section rendering (called from single-unitwise_value_page.php)
+	// =========================================================================
 
 	/**
-	 * Parse a keyword line like "1 gram to milligrams" or "100 grams to kg".
+	 * Get all template sections (stored in wp_options).
 	 *
+	 * @return array<int, array{id:string,title:string,content:string,position:string,enabled:bool}>
+	 */
+	public static function get_sections(): array {
+		$raw = get_option( self::SECTIONS_OPTION, [] );
+		return is_array( $raw ) ? $raw : [];
+	}
+
+	/** Persist the sections array. */
+	private static function save_sections( array $sections ): void {
+		update_option( self::SECTIONS_OPTION, $sections, false );
+	}
+
+	/**
+	 * Output HTML for all enabled sections at a given position.
+	 * Supports {from}, {to}, {value}, {result} placeholders in content.
+	 *
+	 * Call from the theme template at each injection point:
+	 *   Unitwise_Value_Pages::render_sections( 'after_formula', $ctx );
+	 *
+	 * @param string $position  One of the keys in self::$positions.
+	 * @param array  $ctx       Optional context: ['from'=>string,'to'=>string,'value'=>string,'result'=>string]
+	 */
+	public static function render_sections( string $position, array $ctx = [] ): void {
+		$sections = self::get_sections();
+		foreach ( $sections as $s ) {
+			if ( ! $s['enabled'] || $s['position'] !== $position ) {
+				continue;
+			}
+			$content = $s['content'];
+			if ( $ctx ) {
+				$content = str_replace(
+					[ '{from}', '{to}', '{value}', '{result}' ],
+					[
+						esc_html( $ctx['from']   ?? '' ),
+						esc_html( $ctx['to']     ?? '' ),
+						esc_html( $ctx['value']  ?? '' ),
+						esc_html( $ctx['result'] ?? '' ),
+					],
+					$content
+				);
+			}
+			?>
+			<section class="vp-section vp-custom-section">
+				<h2 class="vp-section__title"><?php echo esc_html( $s['title'] ); ?></h2>
+				<div class="vp-custom-section__body">
+					<?php echo wp_kses_post( $content ); ?>
+				</div>
+			</section>
+			<?php
+		}
+	}
+
+	// =========================================================================
+	// Keyword parser
+	// =========================================================================
+
+	/**
 	 * @return array{value:float,from:string,to:string,cat:string}|null
 	 */
 	public static function parse_keyword( string $line ): ?array {
 		$line = strtolower( trim( $line ) );
 		$line = preg_replace( '/\s+/', ' ', $line );
-
-		// Pattern: {number} {from} to {to}
 		if ( ! preg_match( '/^([0-9]+(?:\.[0-9]+)?)\s+([a-z]+)\s+to\s+([a-z]+)$/', $line, $m ) ) {
 			return null;
 		}
-
-		$value    = (float) $m[1];
-		$from_raw = $m[2];
-		$to_raw   = $m[3];
-
-		$from_slug = self::$label_map[ $from_raw ] ?? null;
-		$to_slug   = self::$label_map[ $to_raw ]   ?? null;
-
+		$value     = (float) $m[1];
+		$from_slug = self::$label_map[ $m[2] ] ?? null;
+		$to_slug   = self::$label_map[ $m[3] ] ?? null;
 		if ( ! $from_slug || ! $to_slug || $from_slug === $to_slug ) {
 			return null;
 		}
@@ -502,20 +842,13 @@ class Unitwise_Value_Pages {
 		if ( ! Unitwise_Registry::unit_exists( $from_slug ) || ! Unitwise_Registry::unit_exists( $to_slug ) ) {
 			return null;
 		}
-
 		return [ 'value' => $value, 'from' => $from_slug, 'to' => $to_slug, 'cat' => 'weight' ];
 	}
 
-	// -------------------------------------------------------------------------
-	// Slug and title builders
+	// =========================================================================
+	// Slug / title builders
+	// =========================================================================
 
-	/**
-	 * Build the URL slug. Mirrors dtcalc_page_slug().
-	 * Singular form when value = 1 (e.g. "gram"), plural otherwise (e.g. "grams").
-	 *
-	 * e.g. build_slug(1, 'grams', 'milligrams') → "1-gram-to-milligrams"
-	 *      build_slug(100, 'grams', 'kilograms') → "100-grams-to-kilograms"
-	 */
 	public static function build_slug( float $value, string $from_slug, string $to_slug ): string {
 		$f = ( 1.0 === $value && isset( self::$singular_url[ $from_slug ] ) )
 			? self::$singular_url[ $from_slug ]
@@ -524,31 +857,21 @@ class Unitwise_Value_Pages {
 		return $v . '-' . $f . '-to-' . $to_slug;
 	}
 
-	/**
-	 * Build the page title.
-	 * e.g. "1 Gram to Milligrams", "100 Grams to Kilograms"
-	 */
 	public static function build_title( float $value, string $from_slug, string $to_slug ): string {
-		$plural = ( 1.0 !== $value );
-		$from_l = Unitwise_Registry::get_label( $from_slug, $plural );
+		$from_l = Unitwise_Registry::get_label( $from_slug, ( 1.0 !== $value ) );
 		$to_l   = Unitwise_Registry::get_label( $to_slug, true );
 		$v      = ( floor( $value ) == $value ) ? (int) $value : $value;
 		return "{$v} {$from_l} to {$to_l}";
 	}
 
-	// -------------------------------------------------------------------------
+	// =========================================================================
 	// Standard keyword set
+	// =========================================================================
 
-	/**
-	 * Returns all standard-set keywords for bulk generation.
-	 * Uses Unitwise_Engine::default_table_values() per unit for scale-appropriate values.
-	 * Roughly 460 keywords covering all 46 converter pairs × 10 values each.
-	 */
 	public static function get_standard_keywords(): array {
 		if ( ! class_exists( 'Unitwise_Engine' ) || ! class_exists( 'Unitwise_Registry' ) ) {
 			return [];
 		}
-
 		$pairs = [
 			[ 'grams', 'kilograms' ],  [ 'kilograms', 'grams' ],
 			[ 'grams', 'milligrams' ], [ 'milligrams', 'grams' ],
@@ -573,55 +896,43 @@ class Unitwise_Value_Pages {
 			[ 'pounds', 'stones' ],        [ 'stones', 'pounds' ],
 			[ 'pounds', 'tons' ],          [ 'tons', 'pounds' ],
 		];
-
 		$keywords = [];
 		foreach ( $pairs as [ $from, $to ] ) {
 			$values = Unitwise_Engine::default_table_values( $from );
 			foreach ( $values as $v ) {
-				$plural   = ( 1 != $v );
-				$from_lbl = strtolower( Unitwise_Registry::get_label( $from, $plural ) );
-				$keywords[] = $v . ' ' . $from_lbl . ' to ' . $to;
+				$lbl        = strtolower( Unitwise_Registry::get_label( $from, ( 1 != $v ) ) );
+				$keywords[] = $v . ' ' . $lbl . ' to ' . $to;
 			}
 		}
 		return $keywords;
 	}
 
-	// -------------------------------------------------------------------------
+	// =========================================================================
 	// Data helpers
+	// =========================================================================
 
-	/**
-	 * Get all UnitWise value pages by post status.
-	 *
-	 * @return WP_Post[]
-	 */
+	/** @return WP_Post[] */
 	public static function get_pages_by_status( string $status ): array {
 		return get_posts( [
-			'post_type'      => 'page',
-			'post_status'    => $status,
-			'numberposts'    => -1,
-			'orderby'        => 'post_name',
-			'order'          => 'ASC',
-			'meta_key'       => self::META_FLAG,
-			'meta_value'     => '1',
-			'no_found_rows'  => true,
+			'post_type'     => 'page',
+			'post_status'   => $status,
+			'numberposts'   => -1,
+			'orderby'       => 'post_name',
+			'order'         => 'ASC',
+			'meta_key'      => self::META_FLAG,
+			'meta_value'    => '1',
+			'no_found_rows' => true,
 		] );
 	}
 
-	/**
-	 * Returns all published value pages as a transient-cached data array.
-	 * Mirrors dtcalc_all_pages_data().
-	 *
-	 * @return array<int,array{slug:string,value:float,from:string,to:string,url:string,title:string}>
-	 */
+	/** @return array<int, array{slug:string,value:float,from:string,to:string,url:string,title:string}> */
 	public static function all_pages_data(): array {
 		$cached = get_transient( self::CACHE_KEY );
 		if ( is_array( $cached ) ) {
 			return $cached;
 		}
-
-		$posts = self::get_pages_by_status( 'publish' );
-		$data  = [];
-		foreach ( $posts as $p ) {
+		$data = [];
+		foreach ( self::get_pages_by_status( 'publish' ) as $p ) {
 			$data[] = [
 				'slug'  => $p->post_name,
 				'value' => (float) get_post_meta( $p->ID, self::META_VAL, true ),
@@ -631,15 +942,10 @@ class Unitwise_Value_Pages {
 				'title' => $p->post_title,
 			];
 		}
-
 		set_transient( self::CACHE_KEY, $data, DAY_IN_SECONDS );
 		return $data;
 	}
 
-	/**
-	 * Look up the permalink for a specific value page, if it exists and is published.
-	 * Used by the template to link rows in the nearby-values table.
-	 */
 	public static function value_page_url( float $value, string $from_slug, string $to_slug ): ?string {
 		$slug = self::build_slug( $value, $from_slug, $to_slug );
 		$p    = get_page_by_path( $slug, OBJECT, 'page' );
