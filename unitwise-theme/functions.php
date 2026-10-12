@@ -45,6 +45,37 @@ function unitwise_theme_setup(): void {
 }
 
 // -------------------------------------------------------------------------
+// Google Fonts preconnect hints (reduces font load latency)
+
+add_action( 'wp_head', 'unitwise_theme_preconnect', 1 );
+
+function unitwise_theme_preconnect(): void {
+	echo "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n";
+	echo "<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n";
+}
+
+// -------------------------------------------------------------------------
+// Crawl budget — noindex / redirect thin archive pages
+
+add_action( 'wp_head',          'unitwise_theme_thin_archive_noindex', 1 );
+add_action( 'template_redirect', 'unitwise_theme_redirect_attachments' );
+
+function unitwise_theme_thin_archive_noindex(): void {
+	if ( is_date() || is_tag() ) {
+		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
+	}
+}
+
+function unitwise_theme_redirect_attachments(): void {
+	if ( is_attachment() ) {
+		$parent = wp_get_post_parent_id( get_the_ID() );
+		$target = $parent ? get_permalink( $parent ) : home_url( '/' );
+		wp_redirect( esc_url_raw( $target ), 301 );
+		exit;
+	}
+}
+
+// -------------------------------------------------------------------------
 // Content width
 
 if ( ! isset( $content_width ) ) {

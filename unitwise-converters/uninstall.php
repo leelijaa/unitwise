@@ -33,5 +33,20 @@ if ( ! is_wp_error( $terms ) ) {
 	}
 }
 
-// Remove options
+// Remove value pages (native WP pages with _uw_value_page meta)
+$value_pages = get_posts( [
+	'post_type'   => 'page',
+	'post_status' => 'any',
+	'numberposts' => -1,
+	'fields'      => 'ids',
+	'meta_key'    => '_uw_value_page',
+	'meta_value'  => '1',
+] );
+foreach ( $value_pages as $post_id ) {
+	wp_delete_post( $post_id, true );
+}
+
+// Remove options and transients
 delete_option( 'unitwise_version' );
+delete_option( 'uw_vp_sections' );
+delete_transient( 'uw_value_pages_data' );

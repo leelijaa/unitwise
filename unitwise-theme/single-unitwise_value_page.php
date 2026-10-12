@@ -160,7 +160,19 @@ $GLOBALS['uw_crumbs'] = [
 	?>
 
 	<!-- Reference table of nearby values -->
-	<?php $table_values = Unitwise_Engine::default_table_values( $from ); ?>
+	<?php
+	$table_values = Unitwise_Engine::default_table_values( $from );
+
+	// Build a slug-keyed URL map from the transient cache to avoid one DB query per table row.
+	$vp_url_map = [];
+	if ( class_exists( 'Unitwise_Value_Pages' ) ) {
+		foreach ( Unitwise_Value_Pages::all_pages_data() as $vp ) {
+			if ( $vp['from'] === $from && $vp['to'] === $to ) {
+				$vp_url_map[ (string) $vp['value'] ] = $vp['url'];
+			}
+		}
+	}
+	?>
 	<section class="vp-section" aria-label="<?php esc_attr_e( 'Conversion table', 'unitwise-theme' ); ?>">
 		<h2 class="vp-section__title">
 			<?php printf(
@@ -182,9 +194,7 @@ $GLOBALS['uw_crumbs'] = [
 						$tv_result  = $engine->format_result( $engine->convert( $tv, $from, $to ) );
 						$tv_label   = Unitwise_Registry::get_label( $from, ( 1 != $tv ) );
 						$is_current = ( (string) $tv === (string) $value );
-						$tv_url     = ( ! $is_current && class_exists( 'Unitwise_Value_Pages' ) )
-							? Unitwise_Value_Pages::value_page_url( (float) $tv, $from, $to )
-							: null;
+						$tv_url     = ! $is_current ? ( $vp_url_map[ (string) $tv ] ?? null ) : null;
 					?>
 					<tr<?php echo $is_current ? ' class="vp-table__row--current" aria-current="row"' : ''; ?>>
 						<td>

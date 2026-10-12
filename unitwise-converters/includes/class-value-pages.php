@@ -746,6 +746,15 @@ class Unitwise_Value_Pages {
 		$url   = esc_url( (string) get_permalink( $id ) );
 		$site  = esc_attr( $site );
 
+		// og:image — use customizer default, fall back to nothing (handled gracefully by social platforms)
+		$og_image = get_theme_mod( 'unitwise_og_image', '' );
+		if ( ! $og_image ) {
+			$fallback = get_template_directory() . '/assets/images/og-default.jpg';
+			if ( file_exists( $fallback ) ) {
+				$og_image = get_template_directory_uri() . '/assets/images/og-default.jpg';
+			}
+		}
+
 		echo "<meta name=\"description\" content=\"{$desc}\">\n";
 		echo "<link rel=\"canonical\" href=\"{$url}\">\n";
 		echo "<meta property=\"og:title\" content=\"{$title}\">\n";
@@ -753,9 +762,16 @@ class Unitwise_Value_Pages {
 		echo "<meta property=\"og:url\" content=\"{$url}\">\n";
 		echo "<meta property=\"og:type\" content=\"article\">\n";
 		echo "<meta property=\"og:site_name\" content=\"{$site}\">\n";
-		echo "<meta name=\"twitter:card\" content=\"summary\">\n";
+		if ( $og_image ) {
+			echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		}
+		$tw_card = $og_image ? 'summary_large_image' : 'summary';
+		echo "<meta name=\"twitter:card\" content=\"{$tw_card}\">\n";
 		echo "<meta name=\"twitter:title\" content=\"{$title}\">\n";
 		echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
+		if ( $og_image ) {
+			echo "<meta name=\"twitter:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		}
 	}
 
 	// =========================================================================

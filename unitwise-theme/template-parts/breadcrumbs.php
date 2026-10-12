@@ -63,9 +63,12 @@ if ( count( $crumbs ) < 2 ) {
 	return;
 }
 
-// JSON-LD — skip on unitwise pages when class-schema.php already outputs the full @graph
-$unitwise_cat  = get_query_var( 'unitwise_cat' );
-$has_own_schema = ! defined( 'RANK_MATH_VERSION' ) && ! defined( 'WPSEO_VERSION' ) && $unitwise_cat;
+// JSON-LD — skip when class-schema.php already outputs the full @graph:
+// converter/silo pages (have unitwise_cat query var) and value pages (have _uw_value_page meta).
+$unitwise_cat   = get_query_var( 'unitwise_cat' );
+$is_value_page  = is_singular( 'page' ) && get_the_ID() && '1' === get_post_meta( get_the_ID(), '_uw_value_page', true );
+$has_own_schema = ! defined( 'RANK_MATH_VERSION' ) && ! defined( 'WPSEO_VERSION' )
+	&& ( $unitwise_cat || $is_value_page );
 
 $ld_items = [];
 foreach ( $crumbs as $pos => $crumb ) {

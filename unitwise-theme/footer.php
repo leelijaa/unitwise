@@ -97,7 +97,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 
 			<!-- Social -->
 			<div class="site-footer__upper-col">
-				<h2 class="site-footer__upper-heading"><?php esc_html_e( 'Follow us on', 'unitwise-theme' ); ?></h2>
+				<h3 class="site-footer__upper-heading"><?php esc_html_e( 'Follow us on', 'unitwise-theme' ); ?></h3>
 				<?php if ( $has_social ) : ?>
 				<ul class="site-footer__social-list" aria-label="<?php esc_attr_e( 'Social links', 'unitwise-theme' ); ?>">
 					<?php foreach ( $social_links as $data ) : ?>
@@ -121,7 +121,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 
 			<!-- Popular Converters -->
 			<div class="site-footer__upper-col">
-				<h2 class="site-footer__upper-heading"><?php esc_html_e( 'Popular Converters', 'unitwise-theme' ); ?></h2>
+				<h3 class="site-footer__upper-heading"><?php esc_html_e( 'Popular Converters', 'unitwise-theme' ); ?></h3>
 				<ul class="site-footer__upper-links">
 					<li><a href="<?php echo esc_url( home_url( '/weight/grams-to-kilograms/' ) ); ?>"><?php esc_html_e( 'Grams to Kilograms', 'unitwise-theme' ); ?></a></li>
 					<li><a href="<?php echo esc_url( home_url( '/weight/pounds-to-kilograms/' ) ); ?>"><?php esc_html_e( 'Pounds to Kilograms', 'unitwise-theme' ); ?></a></li>
@@ -134,7 +134,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 
 			<!-- Learn + Site -->
 			<div class="site-footer__upper-col">
-				<h2 class="site-footer__upper-heading"><?php esc_html_e( 'Site', 'unitwise-theme' ); ?></h2>
+				<h3 class="site-footer__upper-heading"><?php esc_html_e( 'Site', 'unitwise-theme' ); ?></h3>
 				<ul class="site-footer__upper-links">
 					<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'unitwise-theme' ); ?></a></li>
 					<li><a href="<?php echo esc_url( home_url( '/weight/' ) ); ?>"><?php esc_html_e( 'Weight Converters', 'unitwise-theme' ); ?></a></li>

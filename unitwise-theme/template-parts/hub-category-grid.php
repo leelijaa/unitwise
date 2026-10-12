@@ -13,9 +13,7 @@ if ( empty( $categories ) ) {
 	return;
 }
 ?>
-<section class="hub-categories" aria-label="<?php esc_attr_e( 'Converter categories', 'unitwise-theme' ); ?>">
-	<h2 class="hub-section-title"><?php esc_html_e( 'Browse by Category', 'unitwise-theme' ); ?></h2>
-
+<div class="hub-categories">
 	<ul class="category-grid" role="list">
 		<?php foreach ( $categories as $slug => $cat ) :
 			$term  = get_term_by( 'slug', $slug, 'unitwise_category' );
@@ -45,4 +43,4 @@ if ( empty( $categories ) ) {
 		</li>
 		<?php endforeach; ?>
 	</ul>
-</section>
+</div>

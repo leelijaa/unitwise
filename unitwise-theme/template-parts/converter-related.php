@@ -78,7 +78,11 @@ $all_siblings = $siblings_query ? $siblings_query->posts : [];
 	<?php if ( ! empty( $all_siblings ) ) : ?>
 	<section>
 		<h3 class="unitwise-related-title">
-			<?php esc_html_e( 'More Weight Converters', 'unitwise-theme' ); ?>
+			<?php
+			$cat_info = class_exists( 'Unitwise_Registry' ) ? Unitwise_Registry::get_category( $cat ) : [];
+			$cat_name = $cat_info['name'] ?? ucfirst( $cat );
+			printf( esc_html__( 'More %s Converters', 'unitwise-theme' ), esc_html( $cat_name ) );
+			?>
 		</h3>
 		<ul class="unitwise-related-list">
 			<?php foreach ( array_slice( $all_siblings, 0, 8 ) as $sibling ) : ?>
