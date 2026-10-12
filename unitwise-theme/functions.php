@@ -119,6 +119,14 @@ function unitwise_theme_seo_tags(): void {
 		return;
 	}
 
+	// Value pages: SEO handled by Unitwise_Value_Pages::output_seo() in the plugin
+	if ( is_singular( 'page' ) ) {
+		$vp_id = get_the_ID();
+		if ( $vp_id && '1' === get_post_meta( $vp_id, '_uw_value_page', true ) ) {
+			return;
+		}
+	}
+
 	$cat  = get_query_var( 'unitwise_cat' );
 	$from = get_query_var( 'unitwise_from' );
 	$to   = get_query_var( 'unitwise_to' );

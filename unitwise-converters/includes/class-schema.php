@@ -27,6 +27,15 @@ class Unitwise_Schema {
 		$from = get_query_var( 'unitwise_from' );
 		$to   = get_query_var( 'unitwise_to' );
 
+		// Value pages (native WP pages with _uw_value_page meta)
+		if ( is_singular( 'page' ) ) {
+			$vid = get_the_ID();
+			if ( $vid && '1' === get_post_meta( $vid, '_uw_value_page', true ) ) {
+				self::value_page_schema( $vid );
+				return;
+			}
+		}
+
 		if ( $cat && $from && $to ) {
 			self::converter_schema( $cat, $from, $to );
 			return;
@@ -129,6 +138,77 @@ class Unitwise_Schema {
 				], $faqs ),
 			];
 		}
+
+		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
+	}
+
+	// -------------------------------------------------------------------------
+	// Value page (specific-value converter pages)
+
+	private static function value_page_schema( int $id ): void {
+		$value = (float) get_post_meta( $id, '_uw_vp_value', true );
+		$from  = sanitize_key( get_post_meta( $id, '_uw_vp_from', true ) );
+		$to    = sanitize_key( get_post_meta( $id, '_uw_vp_to',   true ) );
+		$cat   = sanitize_key( get_post_meta( $id, '_uw_vp_cat',  true ) ?: 'weight' );
+
+		if ( ! $from || ! $to ) {
+			return;
+		}
+
+		$engine  = new Unitwise_Engine( $cat );
+		$result  = $engine->format_result( $engine->convert( $value, $from, $to ) );
+		$plural  = ( 1.0 !== $value );
+		$from_l  = Unitwise_Registry::get_label( $from, $plural );
+		$to_l    = Unitwise_Registry::get_label( $to,   true );
+		$formula = $engine->get_formula( $from, $to );
+		$v_str   = ( floor( $value ) == $value ) ? (int) $value : $value;
+		$url     = (string) get_permalink( $id );
+
+		$cat_info      = Unitwise_Registry::get_category( $cat );
+		$cat_name      = $cat_info['name'] ?? ucfirst( $cat );
+		$cat_url       = home_url( "/{$cat}/" );
+		$converter_url = home_url( "/{$cat}/{$from}-to-{$to}/" );
+
+		$graph = [];
+
+		// BreadcrumbList: Home → Category → Converter → Value page
+		$graph[] = self::breadcrumb( [
+			[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
+			[ 'name' => $cat_name, 'url' => $cat_url ],
+			[ 'name' => "{$from_l} to {$to_l} Converter", 'url' => $converter_url ],
+			[ 'name' => "{$v_str} {$from_l} to {$to_l}", 'url' => $url ],
+		] );
+
+		// FAQPage: 3 value-specific Q&As
+		$graph[] = [
+			'@type'      => 'FAQPage',
+			'mainEntity' => [
+				[
+					'@type'          => 'Question',
+					'name'           => "How many {$to_l} is {$v_str} {$from_l}?",
+					'acceptedAnswer' => [
+						'@type' => 'Answer',
+						'text'  => "{$v_str} {$from_l} equals {$result} {$to_l}. Formula: {$formula}.",
+					],
+				],
+				[
+					'@type'          => 'Question',
+					'name'           => "How do you convert {$v_str} {$from_l} to {$to_l}?",
+					'acceptedAnswer' => [
+						'@type' => 'Answer',
+						'text'  => "To convert {$v_str} {$from_l} to {$to_l}, apply the formula: {$formula}. The result is {$result} {$to_l}.",
+					],
+				],
+				[
+					'@type'          => 'Question',
+					'name'           => "What is {$v_str} {$from_l} in {$to_l}?",
+					'acceptedAnswer' => [
+						'@type' => 'Answer',
+						'text'  => "{$v_str} {$from_l} is equal to {$result} {$to_l}.",
+					],
+				],
+			],
+		];
 
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
 	}

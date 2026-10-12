@@ -36,6 +36,7 @@ $unitwise_includes = [
 	'class-shortcodes',
 	'class-schema',
 	'class-seeder',
+	'class-value-pages',
 ];
 
 foreach ( $unitwise_includes as $file ) {
@@ -70,4 +71,5 @@ function unitwise_boot(): void {
 	Unitwise_Shortcodes::init();
 	Unitwise_Schema::init();
 	Unitwise_Seeder::init();
+	Unitwise_Value_Pages::init();
 }
