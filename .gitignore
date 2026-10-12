@@ -1,0 +1,14 @@
+# WordPress
+*.log
+.DS_Store
+Thumbs.db
+node_modules/
+vendor/
+
+# Build artifacts
+*.zip
+dist/
+
+# Local config
+*.local.php
+wp-config.php

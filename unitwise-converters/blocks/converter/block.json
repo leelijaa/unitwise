@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "unitwise/converter",
+  "version": "1.0.0",
+  "title": "UnitWise Converter",
+  "category": "widgets",
+  "description": "Interactive unit converter with a server-rendered no-JS fallback.",
+  "keywords": [ "converter", "unit", "calculate" ],
+  "textdomain": "unitwise-converters",
+  "attributes": {
+    "from": {
+      "type": "string",
+      "default": ""
+    },
+    "to": {
+      "type": "string",
+      "default": ""
+    },
+    "defaultValue": {
+      "type": "number",
+      "default": 1
+    }
+  },
+  "supports": {
+    "html": false,
+    "interactivity": true
+  },
+  "render": "file:./render.php",
+  "viewScript": "file:./view.js",
+  "style": "file:./style.css",
+  "editorScript": "file:./edit.js"
+}

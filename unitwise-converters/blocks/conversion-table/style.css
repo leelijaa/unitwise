@@ -1,0 +1,72 @@
+/* unitwise/conversion-table block styles */
+
+.unitwise-table-wrap {
+	overflow-x: auto;
+	margin: 1.5rem 0;
+	border-radius: 0.5rem;
+	border: 1px solid #e2e8f0;
+}
+
+.unitwise-conversion-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9375rem;
+}
+
+.unitwise-conversion-table thead {
+	background: #f1f5f9;
+}
+
+.unitwise-conversion-table th {
+	padding: 0.625rem 1rem;
+	text-align: left;
+	font-weight: 600;
+	color: #475569;
+	border-bottom: 2px solid #e2e8f0;
+	white-space: nowrap;
+}
+
+.unitwise-th-sym {
+	font-weight: 400;
+	color: #94a3b8;
+	margin-left: 0.25em;
+}
+
+.unitwise-conversion-table td {
+	padding: 0.5rem 1rem;
+	border-bottom: 1px solid #f1f5f9;
+	color: #334155;
+	font-variant-numeric: tabular-nums;
+}
+
+.unitwise-conversion-table tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.unitwise-conversion-table tbody tr:hover {
+	background: #f8fafc;
+}
+
+@media (prefers-color-scheme: dark) {
+	.unitwise-table-wrap {
+		border-color: #334155;
+	}
+
+	.unitwise-conversion-table thead {
+		background: #1e293b;
+	}
+
+	.unitwise-conversion-table th {
+		color: #94a3b8;
+		border-bottom-color: #334155;
+	}
+
+	.unitwise-conversion-table td {
+		color: #cbd5e1;
+		border-bottom-color: #1e293b;
+	}
+
+	.unitwise-conversion-table tbody tr:hover {
+		background: #1e293b;
+	}
+}

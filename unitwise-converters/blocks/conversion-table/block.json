@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "unitwise/conversion-table",
+  "version": "1.0.0",
+  "title": "UnitWise Conversion Table",
+  "category": "widgets",
+  "description": "Server-rendered table of common conversion values — fully crawlable.",
+  "keywords": [ "table", "conversion", "unit" ],
+  "textdomain": "unitwise-converters",
+  "attributes": {
+    "from": {
+      "type": "string",
+      "default": ""
+    },
+    "to": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "supports": {
+    "html": false
+  },
+  "render": "file:./render.php",
+  "style": "file:./style.css"
+}

@@ -1,0 +1,154 @@
+/* unitwise/converter block styles — scoped to .unitwise-converter-block */
+
+.unitwise-converter-block {
+	margin: 1.5rem 0;
+}
+
+.unitwise-converter-form {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+}
+
+.unitwise-converter-inputs {
+	display: flex;
+	align-items: flex-end;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+.unitwise-input-group,
+.unitwise-output-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	flex: 1;
+	min-width: 160px;
+}
+
+.unitwise-label {
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #475569;
+	display: flex;
+	align-items: baseline;
+	gap: 0.25rem;
+}
+
+.unitwise-symbol {
+	font-weight: 400;
+	color: #94a3b8;
+	font-size: 0.8125rem;
+}
+
+.unitwise-input {
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	font-size: 1.125rem;
+	font-family: inherit;
+	border: 2px solid #cbd5e1;
+	border-radius: 0.5rem;
+	background: #fff;
+	color: #1e293b;
+	transition: border-color 0.15s;
+	box-sizing: border-box;
+}
+
+.unitwise-input:focus {
+	outline: none;
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.unitwise-equals {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #94a3b8;
+	padding-bottom: 0.5rem;
+	flex-shrink: 0;
+}
+
+.unitwise-result {
+	display: block;
+	width: 100%;
+	padding: 0.625rem 0.875rem;
+	font-size: 1.125rem;
+	font-weight: 600;
+	font-family: inherit;
+	border: 2px solid #e2e8f0;
+	border-radius: 0.5rem;
+	background: #f1f5f9;
+	color: #1e293b;
+	min-height: 2.875rem;
+	box-sizing: border-box;
+	word-break: break-all;
+}
+
+.unitwise-formula {
+	margin: 1rem 0 0;
+	font-size: 0.875rem;
+	color: #64748b;
+}
+
+.unitwise-formula code {
+	background: #e2e8f0;
+	padding: 0.1em 0.35em;
+	border-radius: 0.25rem;
+	font-family: 'Courier New', monospace;
+	font-size: 0.875em;
+}
+
+.unitwise-noscript-note {
+	margin: 0.75rem 0 0;
+	font-size: 0.8125rem;
+	color: #94a3b8;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+	.unitwise-converter-form {
+		background: #1e293b;
+		border-color: #334155;
+	}
+
+	.unitwise-label {
+		color: #94a3b8;
+	}
+
+	.unitwise-input {
+		background: #0f172a;
+		border-color: #334155;
+		color: #f1f5f9;
+	}
+
+	.unitwise-input:focus {
+		border-color: #3b82f6;
+	}
+
+	.unitwise-result {
+		background: #0f172a;
+		border-color: #334155;
+		color: #f1f5f9;
+	}
+
+	.unitwise-formula {
+		color: #64748b;
+	}
+
+	.unitwise-formula code {
+		background: #334155;
+	}
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+	.unitwise-converter-inputs {
+		flex-direction: column;
+	}
+
+	.unitwise-equals {
+		align-self: center;
+		padding-bottom: 0;
+	}
+}
