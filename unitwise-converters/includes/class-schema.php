@@ -48,6 +48,11 @@ class Unitwise_Schema {
 
 		if ( is_front_page() ) {
 			self::home_schema();
+			return;
+		}
+
+		if ( is_home() ) {
+			self::blog_index_schema();
 		}
 	}
 
@@ -158,8 +163,9 @@ class Unitwise_Schema {
 		$engine  = new Unitwise_Engine( $cat );
 		$result  = $engine->format_result( $engine->convert( $value, $from, $to ) );
 		$plural  = ( 1.0 !== $value );
-		$from_l  = Unitwise_Registry::get_label( $from, $plural );
-		$to_l    = Unitwise_Registry::get_label( $to,   true );
+		$from_l   = Unitwise_Registry::get_label( $from, $plural );
+		$from_l_p = Unitwise_Registry::get_label( $from, true );
+		$to_l     = Unitwise_Registry::get_label( $to,   true );
 		$formula = $engine->get_formula( $from, $to );
 		$v_str   = ( floor( $value ) == $value ) ? (int) $value : $value;
 		$url     = (string) get_permalink( $id );
@@ -175,7 +181,7 @@ class Unitwise_Schema {
 		$graph[] = self::breadcrumb( [
 			[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
 			[ 'name' => $cat_name, 'url' => $cat_url ],
-			[ 'name' => "{$from_l} to {$to_l} Converter", 'url' => $converter_url ],
+			[ 'name' => "{$from_l_p} to {$to_l} Converter", 'url' => $converter_url ],
 			[ 'name' => "{$v_str} {$from_l} to {$to_l}", 'url' => $url ],
 		] );
 
@@ -255,6 +261,25 @@ class Unitwise_Schema {
 					'@type' => 'ImageObject',
 					'url'   => get_template_directory_uri() . '/assets/images/logo.png',
 				],
+			],
+		];
+		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
+	}
+
+	// Blog index (CollectionPage)
+
+	private static function blog_index_schema(): void {
+		$page_for_posts = (int) get_option( 'page_for_posts' );
+		$url   = $page_for_posts ? get_permalink( $page_for_posts ) : home_url( '/blog/' );
+		$title = $page_for_posts ? get_the_title( $page_for_posts ) : ( get_bloginfo( 'name' ) . ' Blog' );
+		$graph = [
+			[
+				'@type'           => 'CollectionPage',
+				'@id'             => $url,
+				'name'            => $title,
+				'url'             => $url,
+				'isPartOf'        => [ '@id' => home_url( '/#website' ) ],
+				'inLanguage'      => get_bloginfo( 'language' ),
 			],
 		];
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );

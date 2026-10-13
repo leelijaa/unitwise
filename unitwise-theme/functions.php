@@ -309,6 +309,16 @@ function unitwise_theme_customizer( WP_Customize_Manager $wp_customize ): void {
 }
 
 // -------------------------------------------------------------------------
+// Bust footer converter column cache when converters are saved/deleted
+
+add_action( 'save_post_unitwise_converter', 'unitwise_theme_bust_footer_cache' );
+add_action( 'delete_post', 'unitwise_theme_bust_footer_cache' );
+
+function unitwise_theme_bust_footer_cache(): void {
+	delete_transient( 'uw_footer_cat_cols' );
+}
+
+// -------------------------------------------------------------------------
 // robots.txt — add sitemap directive
 
 add_filter( 'robots_txt', 'unitwise_theme_robots_txt', 10, 2 );

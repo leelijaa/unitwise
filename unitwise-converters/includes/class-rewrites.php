@@ -33,7 +33,7 @@ class Unitwise_Rewrites {
 
 			// Converter page: /weight/grams-to-kilograms/
 			add_rewrite_rule(
-				'^' . $escaped . '/([a-z]+)-to-([a-z]+)/?$',
+				'^' . $escaped . '/([a-z_]+)-to-([a-z_]+)/?$',
 				'index.php?unitwise_cat=' . $cat_slug . '&unitwise_from=$matches[1]&unitwise_to=$matches[2]',
 				'top'
 			);

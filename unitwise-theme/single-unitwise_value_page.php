@@ -50,7 +50,6 @@ $section_ctx = [
 
 // Breadcrumbs (consumed by template-parts/breadcrumbs.php via $GLOBALS['uw_crumbs'])
 $GLOBALS['uw_crumbs'] = [
-	[ 'label' => __( 'Home', 'unitwise-theme' ), 'url' => home_url( '/' ) ],
 	[ 'label' => $cat_name, 'url' => $cat_url ],
 	[ 'label' => "{$from_l_p} to {$to_l_p} Converter", 'url' => $converter_url ],
 	[ 'label' => "{$v_str} {$from_l} to {$to_l_p}", 'url' => '' ],

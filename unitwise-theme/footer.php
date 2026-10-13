@@ -43,37 +43,42 @@ $contact_email = get_theme_mod( 'footer_contact_email', '' );
 /* ---- Auto-generate converter columns from unitwise_category --------------- */
 $footer_cat_cols = [];
 if ( class_exists( 'Unitwise_Registry' ) ) {
-	$terms = get_terms( [
-		'taxonomy'   => 'unitwise_category',
-		'hide_empty' => true,
-		'orderby'    => 'name',
-		'order'      => 'ASC',
-	] );
-	if ( ! is_wp_error( $terms ) ) {
-		foreach ( $terms as $term ) {
-			$converters = get_posts( [
-				'post_type'      => 'unitwise_converter',
-				'posts_per_page' => 8,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-				'no_found_rows'  => true,
-				'tax_query'      => [[
-					'taxonomy' => 'unitwise_category',
-					'field'    => 'term_id',
-					'terms'    => $term->term_id,
-				]],
-			] );
-			if ( ! empty( $converters ) ) {
-				$footer_cat_cols[] = [
-					'name'       => $term->name,
-					'link'       => home_url( '/' . $term->slug . '/' ),
-					'converters' => array_map(
-						fn( $p ) => [ 'title' => get_the_title( $p ), 'url' => get_permalink( $p ) ],
-						$converters
-					),
-				];
+	$footer_cat_cols = get_transient( 'uw_footer_cat_cols' );
+	if ( false === $footer_cat_cols ) {
+		$footer_cat_cols = [];
+		$terms = get_terms( [
+			'taxonomy'   => 'unitwise_category',
+			'hide_empty' => true,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		] );
+		if ( ! is_wp_error( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$converters = get_posts( [
+					'post_type'      => 'unitwise_converter',
+					'posts_per_page' => 8,
+					'orderby'        => 'title',
+					'order'          => 'ASC',
+					'no_found_rows'  => true,
+					'tax_query'      => [[
+						'taxonomy' => 'unitwise_category',
+						'field'    => 'term_id',
+						'terms'    => $term->term_id,
+					]],
+				] );
+				if ( ! empty( $converters ) ) {
+					$footer_cat_cols[] = [
+						'name'       => $term->name,
+						'link'       => home_url( '/' . $term->slug . '/' ),
+						'converters' => array_map(
+							fn( $p ) => [ 'title' => get_the_title( $p ), 'url' => get_permalink( $p ) ],
+							$converters
+						),
+					];
+				}
 			}
 		}
+		set_transient( 'uw_footer_cat_cols', $footer_cat_cols, DAY_IN_SECONDS );
 	}
 }
 ?>

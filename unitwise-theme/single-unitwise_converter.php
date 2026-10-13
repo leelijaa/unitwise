@@ -142,6 +142,7 @@ if ( $valid ) {
 					<div class="unitwise-worked-example">
 						<code><?php echo esc_html( $example ); ?></code>
 					</div>
+					<?php get_template_part( 'template-parts/howto', null, [ 'from' => $from, 'to' => $to, 'engine' => $engine ] ); ?>
 				</section>
 
 				<?php /* 6. Conversion table */ ?>

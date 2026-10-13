@@ -35,6 +35,7 @@
 	--uw-header-height: 64px;
 	--uw-radius:        .75rem;
 	--uw-radius-sm:     .375rem;
+	--uw-radius-md:     .625rem;
 	--uw-radius-lg:     1rem;
 
 	--uw-space-1:  .25rem;  --uw-space-2:  .5rem;
@@ -645,7 +646,7 @@ ul, ol { padding-left: 1.5em; }
 /* Hero */
 .silo-hero {
 	position: relative; overflow: hidden;
-	padding: var(--uw-space-14) 0 var(--uw-space-12);
+	padding: var(--uw-space-16) 0 var(--uw-space-12);
 	background: var(--uw-bg);
 	border-bottom: 1px solid var(--uw-border);
 }

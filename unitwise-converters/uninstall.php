@@ -50,3 +50,4 @@ foreach ( $value_pages as $post_id ) {
 delete_option( 'unitwise_version' );
 delete_option( 'uw_vp_sections' );
 delete_transient( 'uw_value_pages_data' );
+delete_transient( 'uw_footer_cat_cols' );
