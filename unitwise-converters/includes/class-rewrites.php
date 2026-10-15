@@ -190,7 +190,7 @@ class Unitwise_Rewrites {
 	 */
 	public static function handle_legacy_redirects(): void {
 		// Redirect ?p=123 for converter posts to the silo URL
-		if ( ! empty( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! is_singular() && ! empty( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$post = get_post( (int) $_GET['p'] ); // phpcs:ignore WordPress.Security.NonceVerification
 			if ( $post instanceof WP_Post && 'unitwise_converter' === $post->post_type ) {
 				wp_redirect( get_permalink( $post ), 301 );

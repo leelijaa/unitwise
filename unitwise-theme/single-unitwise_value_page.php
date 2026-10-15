@@ -323,6 +323,14 @@ $GLOBALS['uw_crumbs'] = [
 	var fromKey = <?php echo wp_json_encode( $from ); ?>;
 	var toKey   = <?php echo wp_json_encode( $to ); ?>;
 
+	function formatResult( value, dp ) {
+		if ( value === 0 ) return '0';
+		var abs = Math.abs( value );
+		if ( abs < 0.0001 || abs >= 10000000 ) { return value.toExponential( 6 ); }
+		var str = value.toFixed( dp );
+		return str.replace( /(\.\d*?)0+$/, '$1' ).replace( /\.$/, '' );
+	}
+
 	function recalc() {
 		if ( !window.unitwiseData || !window.unitwiseData.factors ) { return; }
 		var v = parseFloat( input.value );
@@ -334,9 +342,8 @@ $GLOBALS['uw_crumbs'] = [
 		var f   = window.unitwiseData.factors;
 		var dec = window.unitwiseData.decimals || 6;
 		var res = v * f[fromKey] / f[toKey];
-		var fmt = res.toLocaleString( 'en-US', { maximumFractionDigits: dec, minimumFractionDigits: 0 } );
-		output.textContent = fmt;
-		if ( heroOut ) { heroOut.textContent = fmt; }
+		output.textContent = formatResult( res, dec );
+		if ( heroOut ) { heroOut.textContent = formatResult( res, dec ); }
 	}
 
 	if ( input ) { input.addEventListener( 'input', recalc ); }

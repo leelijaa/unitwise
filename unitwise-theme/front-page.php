@@ -60,9 +60,9 @@ get_header();
 				?>
 				<li class="post-card">
 					<div class="post-card__thumb-wrap">
-						<a href="<?php the_permalink(); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
+						<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
 							<?php if ( has_post_thumbnail() ) : ?>
-								<?php the_post_thumbnail( 'medium_large', [ 'loading' => 'lazy' ] ); ?>
+								<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => 'lazy' ] ); ?>
 							<?php else : ?>
 								<span class="post-card__thumb-placeholder" aria-hidden="true"><?php echo esc_html( strtoupper( substr( get_bloginfo( 'name' ), 0, 2 ) ) ); ?></span>
 							<?php endif; ?>
@@ -73,7 +73,7 @@ get_header();
 					</div>
 					<div class="post-card__body">
 						<h3 class="post-card__title">
-							<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+							<a href="<?php echo esc_url( get_permalink() ); ?>"><?php echo esc_html( get_the_title() ); ?></a>
 						</h3>
 						<div class="post-card__meta">
 							<span class="post-card__author">
@@ -90,15 +90,7 @@ get_header();
 		<?php endif; ?>
 
 		<!-- Newsletter CTA -->
-		<div class="hub-newsletter" role="complementary" aria-label="<?php esc_attr_e( 'Newsletter sign-up', 'unitwise-theme' ); ?>">
-			<h2 class="hub-newsletter__title"><?php esc_html_e( 'Stay in the Loop', 'unitwise-theme' ); ?></h2>
-			<p class="hub-newsletter__sub"><?php esc_html_e( 'Get notified when we add new converters, guides, and tools. No spam, unsubscribe any time.', 'unitwise-theme' ); ?></p>
-			<form class="hub-newsletter__form" aria-label="<?php esc_attr_e( 'Email sign-up form', 'unitwise-theme' ); ?>">
-				<label for="newsletter-email" class="screen-reader-text"><?php esc_html_e( 'Email address', 'unitwise-theme' ); ?></label>
-				<input type="email" id="newsletter-email" name="email" class="hub-newsletter__input" placeholder="<?php esc_attr_e( 'you@example.com', 'unitwise-theme' ); ?>" autocomplete="email" required>
-				<button type="submit" class="hub-newsletter__btn"><?php esc_html_e( 'Subscribe', 'unitwise-theme' ); ?></button>
-			</form>
-		</div>
+		<?php get_template_part( 'template-parts/hub-newsletter' ); ?>
 
 	</div><!-- .container -->
 

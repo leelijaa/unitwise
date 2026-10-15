@@ -83,7 +83,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 }
 ?>
 
-<footer class="site-footer" role="contentinfo">
+<footer class="site-footer">
 	<div class="container">
 
 		<!-- ================================================================ -->

@@ -21,7 +21,7 @@ global $wp_query;
 			<?php while ( have_posts() ) : the_post();
 				$cats     = get_the_category();
 				$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
-				include get_template_directory() . '/template-parts/post-card.php';
+				get_template_part( 'template-parts/post-card' );
 			endwhile; ?>
 		</ul>
 

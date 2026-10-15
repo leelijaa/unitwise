@@ -17,7 +17,7 @@ $posts = get_posts( [
 ] );
 
 foreach ( $posts as $post_id ) {
-	wp_delete_post( $post_id, true );
+	wp_delete_post( $post_id, false );
 }
 
 // Remove taxonomy terms
@@ -43,7 +43,7 @@ $value_pages = get_posts( [
 	'meta_value'  => '1',
 ] );
 foreach ( $value_pages as $post_id ) {
-	wp_delete_post( $post_id, true );
+	wp_delete_post( $post_id, false );
 }
 
 // Remove options and transients

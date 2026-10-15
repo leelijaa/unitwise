@@ -56,13 +56,28 @@ function unitwise_theme_preconnect(): void {
 }
 
 // -------------------------------------------------------------------------
+// Async Google Fonts — prevent render-blocking
+
+add_filter( 'style_loader_tag', 'unitwise_theme_async_fonts', 10, 2 );
+
+function unitwise_theme_async_fonts( string $tag, string $handle ): string {
+	if ( 'unitwise-fonts' !== $handle ) {
+		return $tag;
+	}
+	$async = str_replace( "rel='stylesheet'", "rel='preload' as='style' onload=\"this.onload=null;this.rel='stylesheet'\"", $tag );
+	return $async . "<noscript>{$tag}</noscript>\n";
+}
+
+// -------------------------------------------------------------------------
 // Crawl budget — noindex / redirect thin archive pages
 
 add_action( 'wp_head',          'unitwise_theme_thin_archive_noindex', 1 );
 add_action( 'template_redirect', 'unitwise_theme_redirect_attachments' );
 
 function unitwise_theme_thin_archive_noindex(): void {
-	if ( is_date() || is_tag() || is_category() ) {
+	if ( is_date() || is_tag() || is_category()
+		|| ( is_paged() && ( is_home() || is_archive() ) )
+	) {
 		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
 	}
 }
@@ -235,8 +250,25 @@ function unitwise_theme_seo_tags(): void {
 	echo "<meta property=\"og:site_name\" content=\"{$site}\">\n";
 	if ( $og_image ) {
 		echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		echo "<meta property=\"og:image:width\" content=\"1200\">\n";
+		echo "<meta property=\"og:image:height\" content=\"630\">\n";
 	}
-	echo "<meta name=\"twitter:card\" content=\"summary" . ( $og_image ? '_large_image' : '' ) . "\">\n";
+	if ( 'article' === $og_type ) {
+		echo "<meta property=\"article:published_time\" content=\"" . esc_attr( get_the_date( 'c' ) ) . "\">\n";
+		echo "<meta property=\"article:modified_time\" content=\"" . esc_attr( get_the_modified_date( 'c' ) ) . "\">\n";
+		$author_name = get_the_author_meta( 'display_name' );
+		if ( $author_name ) {
+			echo "<meta property=\"article:author\" content=\"" . esc_attr( $author_name ) . "\">\n";
+		}
+	}
+	$twitter_url = get_theme_mod( 'footer_social_twitter', '' );
+	$tw_card     = 'summary' . ( $og_image ? '_large_image' : '' );
+	echo "<meta name=\"twitter:card\" content=\"{$tw_card}\">\n";
+	if ( $twitter_url ) {
+		preg_match( '#(?:twitter|x)\.com/([^/?\s]+)#i', $twitter_url, $m );
+		$tw_site = isset( $m[1] ) ? '@' . $m[1] : $twitter_url;
+		echo "<meta name=\"twitter:site\" content=\"" . esc_attr( $tw_site ) . "\">\n";
+	}
 	echo "<meta name=\"twitter:title\" content=\"{$title}\">\n";
 	echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
 	if ( $og_image ) {
@@ -335,6 +367,9 @@ add_filter( 'robots_txt', 'unitwise_theme_robots_txt', 10, 2 );
 
 function unitwise_theme_robots_txt( string $output, bool $public ): string {
 	if ( $public ) {
+		$output .= "\nDisallow: /?s=\n";
+		$output .= "Disallow: /?p=\n";
+		$output .= "Disallow: /?post_type=unitwise_converter\n";
 		$output .= "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
 	}
 	return $output;

@@ -18,7 +18,7 @@ class Unitwise_Sitemap_Provider extends WP_Sitemaps_Provider {
 		$this->object_type = 'unitwise_converter';
 	}
 
-	public function get_url_list( int $page_num, string $object_subtype = '' ): array {
+	public function get_url_list( $page_num, $object_subtype = '' ): array {
 		$per_page = $this->get_max_num_urls();
 		$offset   = ( $page_num - 1 ) * $per_page;
 
@@ -33,6 +33,14 @@ class Unitwise_Sitemap_Provider extends WP_Sitemaps_Provider {
 		] );
 
 		$urls = [];
+
+		// Silo category hub pages (only on first page of sitemap)
+		if ( $page_num === 1 && class_exists( 'Unitwise_Registry' ) ) {
+			foreach ( Unitwise_Registry::get_categories() as $slug => $cat ) {
+				$urls[] = [ 'loc' => home_url( "/{$slug}/" ) ];
+			}
+		}
+
 		foreach ( $posts as $post ) {
 			$from = get_post_meta( $post->ID, 'unitwise_from_unit', true );
 			$to   = get_post_meta( $post->ID, 'unitwise_to_unit',   true );
@@ -52,7 +60,7 @@ class Unitwise_Sitemap_Provider extends WP_Sitemaps_Provider {
 		return $urls;
 	}
 
-	public function get_max_num_pages( string $object_subtype = '' ): int {
+	public function get_max_num_pages( $object_subtype = '' ): int {
 		$total = wp_count_posts( 'unitwise_converter' )->publish ?? 0;
 		return (int) ceil( $total / $this->get_max_num_urls() );
 	}

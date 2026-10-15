@@ -78,9 +78,9 @@ class Unitwise_Schema {
 			[ 'name' => "{$from_plural} to {$to_plural}", 'url' => $converter_url ],
 		] );
 
-		// SoftwareApplication
+		// WebApplication
 		$graph[] = [
-			'@type'               => 'SoftwareApplication',
+			'@type'               => 'WebApplication',
 			'name'                => "{$from_plural} to {$to_plural} Converter",
 			'applicationCategory' => 'UtilityApplication',
 			'operatingSystem'     => 'Web',
@@ -177,6 +177,16 @@ class Unitwise_Schema {
 
 		$graph = [];
 
+		// WebPage
+		$graph[] = [
+			'@type'      => 'WebPage',
+			'@id'        => $url,
+			'url'        => $url,
+			'name'       => "{$v_str} {$from_l} to {$to_l}",
+			'inLanguage' => get_bloginfo( 'language' ),
+			'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
+		];
+
 		// BreadcrumbList: Home → Category → Converter → Value page
 		$graph[] = self::breadcrumb( [
 			[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
@@ -239,28 +249,25 @@ class Unitwise_Schema {
 	private static function home_schema(): void {
 		$graph = [
 			[
-				'@type'           => 'WebSite',
-				'@id'             => home_url( '/#website' ),
-				'name'            => get_bloginfo( 'name' ),
-				'url'             => home_url( '/' ),
-				'potentialAction' => [
-					'@type'       => 'SearchAction',
-					'target'      => [
-						'@type'       => 'EntryPoint',
-						'urlTemplate' => home_url( '/?s={search_term_string}' ),
-					],
-					'query-input' => 'required name=search_term_string',
-				],
-			],
-			[
-				'@type' => 'Organization',
-				'@id'   => home_url( '/#organization' ),
+				'@type' => 'WebSite',
+				'@id'   => home_url( '/#website' ),
 				'name'  => get_bloginfo( 'name' ),
 				'url'   => home_url( '/' ),
-				'logo'  => [
+			],
+			[
+				'@type'  => 'Organization',
+				'@id'    => home_url( '/#organization' ),
+				'name'   => get_bloginfo( 'name' ),
+				'url'    => home_url( '/' ),
+				'logo'   => [
 					'@type' => 'ImageObject',
 					'url'   => get_theme_mod( 'unitwise_logo_url', get_template_directory_uri() . '/assets/images/logo.png' ),
 				],
+				'sameAs' => array_values( array_filter( [
+					get_theme_mod( 'footer_social_twitter',  '' ),
+					get_theme_mod( 'footer_social_youtube',  '' ),
+					get_theme_mod( 'footer_social_linkedin', '' ),
+				] ) ),
 			],
 		];
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );

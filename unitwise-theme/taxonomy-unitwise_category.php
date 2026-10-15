@@ -69,7 +69,7 @@ $count = count( $posts );
 	</section>
 
 	<!-- Converter grid -->
-	<section class="silo-grid-section">
+	<section class="silo-grid-section" aria-label="<?php echo $term ? esc_attr( sprintf( __( '%s converters', 'unitwise-theme' ), $term->name ) ) : esc_attr__( 'Converters', 'unitwise-theme' ); ?>">
 		<div class="container">
 			<?php if ( ! empty( $posts ) ) : ?>
 				<ul class="silo-converter-grid" role="list">

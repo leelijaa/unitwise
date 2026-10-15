@@ -743,12 +743,11 @@ class Unitwise_Value_Pages {
 		$site    = get_bloginfo( 'name' );
 		$v_str   = ( floor( $value ) == $value ) ? (int) $value : $value;
 
-		$title = esc_html( "{$v_str} {$from_l} to {$to_l} | {$site}" );
-		$desc  = esc_attr( "{$v_str} {$from_l} equals {$result} {$to_l}. Convert {$from_l} to {$to_l} with our free online unit converter." );
-		$url   = esc_url( (string) get_permalink( $id ) );
-		$site  = esc_attr( $site );
+		$title_raw = "{$v_str} {$from_l} to {$to_l} | {$site}";
+		$desc_raw  = "{$v_str} {$from_l} equals {$result} {$to_l}. Convert {$from_l} to {$to_l} with our free online unit converter.";
+		$url_raw   = (string) get_permalink( $id );
 
-		// og:image — use customizer default, fall back to nothing (handled gracefully by social platforms)
+		// og:image — use customizer default, fall back to nothing
 		$og_image = get_theme_mod( 'unitwise_og_image', '' );
 		if ( ! $og_image ) {
 			$fallback = get_template_directory() . '/assets/images/og-default.jpg';
@@ -757,20 +756,22 @@ class Unitwise_Value_Pages {
 			}
 		}
 
-		echo "<meta name=\"description\" content=\"{$desc}\">\n";
-		echo "<link rel=\"canonical\" href=\"{$url}\">\n";
-		echo "<meta property=\"og:title\" content=\"{$title}\">\n";
-		echo "<meta property=\"og:description\" content=\"{$desc}\">\n";
-		echo "<meta property=\"og:url\" content=\"{$url}\">\n";
+		echo "<meta name=\"description\" content=\"" . esc_attr( $desc_raw ) . "\">\n";
+		echo "<link rel=\"canonical\" href=\"" . esc_url( $url_raw ) . "\">\n";
+		echo "<meta property=\"og:title\" content=\"" . esc_attr( $title_raw ) . "\">\n";
+		echo "<meta property=\"og:description\" content=\"" . esc_attr( $desc_raw ) . "\">\n";
+		echo "<meta property=\"og:url\" content=\"" . esc_url( $url_raw ) . "\">\n";
 		echo "<meta property=\"og:type\" content=\"website\">\n";
-		echo "<meta property=\"og:site_name\" content=\"{$site}\">\n";
+		echo "<meta property=\"og:site_name\" content=\"" . esc_attr( $site ) . "\">\n";
 		if ( $og_image ) {
 			echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+			echo "<meta property=\"og:image:width\" content=\"1200\">\n";
+			echo "<meta property=\"og:image:height\" content=\"630\">\n";
 		}
 		$tw_card = $og_image ? 'summary_large_image' : 'summary';
 		echo "<meta name=\"twitter:card\" content=\"{$tw_card}\">\n";
-		echo "<meta name=\"twitter:title\" content=\"{$title}\">\n";
-		echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
+		echo "<meta name=\"twitter:title\" content=\"" . esc_attr( $title_raw ) . "\">\n";
+		echo "<meta name=\"twitter:description\" content=\"" . esc_attr( $desc_raw ) . "\">\n";
 		if ( $og_image ) {
 			echo "<meta name=\"twitter:image\" content=\"" . esc_url( $og_image ) . "\">\n";
 		}

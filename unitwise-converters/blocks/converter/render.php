@@ -46,27 +46,17 @@ $from_plural   = Unitwise_Registry::get_label( $from, true );
 $to_plural     = Unitwise_Registry::get_label( $to, true );
 $formula       = $engine->get_formula( $from, $to );
 
-// Output unitwiseData inline — wp_localize_script is too late here (after wp_head),
-// so we emit a plain <script> tag. view.js is footer-loaded so this executes first.
-static $localized = false;
-if ( ! $localized ) {
-	$localized = true;
-	$cat_slug = get_query_var( 'unitwise_cat' ) ?: Unitwise_Registry::get_unit_category( $from );
-	$uw_data  = wp_json_encode( [
-		'factors'  => Unitwise_Registry::get_factors( $cat_slug ),
-		'decimals' => 6,
-		'from'     => $from,
-		'to'       => $to,
-	] );
-	if ( false !== $uw_data ) {
-		echo '<script>window.unitwiseData=' . $uw_data . ';</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput
-	}
-}
+// Embed per-block factors as a data attribute so multiple blocks on one page
+// each get their own category factors (avoids the static-flag first-block-wins bug).
+$cat_slug     = get_query_var( 'unitwise_cat' ) ?: Unitwise_Registry::get_unit_category( $from );
+$block_factors = wp_json_encode( Unitwise_Registry::get_factors( $cat_slug ) );
 ?>
 <section
 	class="unitwise-converter-block"
 	data-from="<?php echo esc_attr( $from ); ?>"
 	data-to="<?php echo esc_attr( $to ); ?>"
+	data-factors="<?php echo esc_attr( $block_factors ?: '{}' ); ?>"
+	data-decimals="6"
 	aria-label="<?php printf( esc_attr__( '%1$s to %2$s converter', 'unitwise-converters' ), esc_attr( $from_plural ), esc_attr( $to_plural ) ); ?>"
 >
 	<form class="unitwise-converter-form" method="get" novalidate>

@@ -124,7 +124,7 @@ if ( $valid ) {
 				</header>
 
 				<?php /* 3. Live converter tool */ ?>
-				<section class="converter-section" aria-label="<?php esc_attr_e( 'Converter tool', 'unitwise-theme' ); ?>">
+				<section class="converter-section">
 					<?php echo do_blocks( '<!-- wp:unitwise/converter /-->' ); ?>
 				</section>
 
@@ -185,7 +185,7 @@ if ( $valid ) {
 				<?php endif; ?>
 
 				<?php /* 9. Related converters */ ?>
-				<section class="converter-section">
+				<section class="converter-section" aria-label="<?php esc_attr_e( 'Related converters', 'unitwise-theme' ); ?>">
 					<?php get_template_part( 'template-parts/converter-related', null, [
 						'from'           => $from,
 						'to'             => $to,
