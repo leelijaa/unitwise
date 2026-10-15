@@ -4,5 +4,5 @@
  */
 ?>
 <div class="hub-popular">
-	<?php echo do_blocks( '<!-- wp:unitwise/popular-converters {"category":"weight","limit":12,"title":""} /-->' ); ?>
+	<?php echo do_blocks( '<!-- wp:unitwise/popular-converters {"limit":12,"title":""} /-->' ); ?>
 </div>

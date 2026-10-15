@@ -97,14 +97,22 @@
 	}
 
 	/* -----------------------------------------------------------------------
-	   Newsletter form (prevent default, show feedback)
+	   Newsletter form — not yet connected to an email provider
 	----------------------------------------------------------------------- */
 	const newsForm = document.querySelector('.hub-newsletter__form');
 	if (newsForm) {
 		newsForm.addEventListener('submit', (e) => {
 			e.preventDefault();
 			const btn = newsForm.querySelector('.hub-newsletter__btn');
-			if (btn) { btn.textContent = 'Thanks!'; btn.disabled = true; }
+			if (btn) { btn.textContent = 'Coming Soon'; btn.disabled = true; }
+			let note = newsForm.querySelector('.hub-newsletter__notice');
+			if (!note) {
+				note = document.createElement('p');
+				note.className = 'hub-newsletter__notice';
+				note.setAttribute('style', 'margin-top:.5rem;font-size:.875rem;opacity:.75;text-align:center');
+				newsForm.appendChild(note);
+			}
+			note.textContent = 'Newsletter launching soon — sign-ups are not being stored yet.';
 		});
 	}
 

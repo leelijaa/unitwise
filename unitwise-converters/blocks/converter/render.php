@@ -38,7 +38,7 @@ if ( ! $from || ! $to || ! Unitwise_Registry::unit_exists( $from ) || ! Unitwise
 }
 
 $default_value = isset( $attributes['defaultValue'] ) ? (float) $attributes['defaultValue'] : 1.0;
-$engine        = new Unitwise_Engine( get_query_var( 'unitwise_cat' ) ?: 'weight' );
+$engine        = new Unitwise_Engine( get_query_var( 'unitwise_cat' ) ?: Unitwise_Registry::get_unit_category( $from ) );
 $result        = $engine->format_result( $engine->convert( $default_value, $from, $to ) );
 $from_sym      = Unitwise_Registry::get_symbol( $from );
 $to_sym        = Unitwise_Registry::get_symbol( $to );
@@ -51,7 +51,7 @@ $formula       = $engine->get_formula( $from, $to );
 static $localized = false;
 if ( ! $localized ) {
 	$localized = true;
-	$cat_slug = get_query_var( 'unitwise_cat' ) ?: 'weight';
+	$cat_slug = get_query_var( 'unitwise_cat' ) ?: Unitwise_Registry::get_unit_category( $from );
 	$uw_data  = wp_json_encode( [
 		'factors'  => Unitwise_Registry::get_factors( $cat_slug ),
 		'decimals' => 6,

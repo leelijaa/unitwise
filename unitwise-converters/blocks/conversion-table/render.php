@@ -23,7 +23,7 @@ if ( ! $from || ! $to || ! Unitwise_Registry::unit_exists( $from ) || ! Unitwise
 	return;
 }
 
-$engine    = new Unitwise_Engine( 'weight' );
+$engine    = new Unitwise_Engine( Unitwise_Registry::get_unit_category( $from ) );
 $values    = Unitwise_Engine::default_table_values( $from );
 $rows      = $engine->get_table_rows( $from, $to, $values );
 $from_lbl  = Unitwise_Registry::get_label( $from, true );

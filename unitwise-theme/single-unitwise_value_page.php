@@ -182,6 +182,9 @@ $GLOBALS['uw_crumbs'] = [
 		</h2>
 		<div class="vp-table-wrap">
 			<table class="vp-table">
+				<caption class="screen-reader-text">
+					<?php printf( esc_html__( '%1$s to %2$s conversion table', 'unitwise-theme' ), esc_html( $from_l_p ), esc_html( $to_l_p ) ); ?>
+				</caption>
 				<thead>
 					<tr>
 						<th scope="col"><?php echo esc_html( $from_l_p ); ?></th>

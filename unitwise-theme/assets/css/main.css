@@ -663,13 +663,16 @@ ul, ol { padding-left: 1.5em; }
 }
 .silo-hero__bg-glow {
 	position: absolute; inset: 0; pointer-events: none;
+	background: radial-gradient(ellipse 70% 60% at 50% -10%, rgba(37,99,235,.12) 0%, transparent 70%);
 	background: radial-gradient(ellipse 70% 60% at 50% -10%, color-mix(in srgb, var(--uw-primary) 12%, transparent) 0%, transparent 70%);
 }
 .silo-hero__inner { position: relative; z-index: 1; max-width: 640px; }
 .silo-hero__badge {
 	display: inline-flex; align-items: center; gap: .45rem;
 	padding: .3rem .8rem; border-radius: 100px;
+	border: 1px solid rgba(37,99,235,.35);
 	border: 1px solid color-mix(in srgb, var(--uw-primary) 35%, transparent);
+	background: rgba(37,99,235,.08);
 	background: color-mix(in srgb, var(--uw-primary) 8%, transparent);
 	font-size: .75rem; font-weight: 600; color: var(--uw-primary);
 	text-transform: uppercase; letter-spacing: .06em;
@@ -723,12 +726,14 @@ ul, ol { padding-left: 1.5em; }
 }
 .silo-card__link::before {
 	content: ''; position: absolute; inset: 0;
+	background: linear-gradient(135deg, rgba(37,99,235,.05) 0%, transparent 60%);
 	background: linear-gradient(135deg, color-mix(in srgb, var(--uw-primary) 5%, transparent) 0%, transparent 60%);
 	opacity: 0; transition: opacity .2s;
 }
 .silo-card__link:hover,
 .silo-card__link:focus-visible {
 	border-color: var(--uw-primary);
+	box-shadow: 0 4px 24px rgba(37,99,235,.15);
 	box-shadow: 0 4px 24px color-mix(in srgb, var(--uw-primary) 15%, transparent);
 	transform: translateY(-3px);
 	outline: none;
@@ -740,6 +745,7 @@ ul, ol { padding-left: 1.5em; }
 	display: inline-flex; align-items: center; gap: .35rem;
 	padding: .3rem .65rem; border-radius: 6px;
 	background: var(--uw-primary-light);
+	border: 1px solid rgba(37,99,235,.20);
 	border: 1px solid color-mix(in srgb, var(--uw-primary) 20%, transparent);
 	font-family: var(--uw-font-mono); font-size: .8125rem; font-weight: 700;
 	color: var(--uw-primary); width: fit-content;
@@ -896,6 +902,7 @@ ul, ol { padding-left: 1.5em; }
 	width: 100%; height: 100%;
 	display: flex; align-items: center; justify-content: center;
 	font-size: 3rem; font-weight: 800; letter-spacing: .05em;
+	color: rgba(37,99,235,.30);
 	color: color-mix(in srgb, var(--uw-primary) 30%, transparent);
 }
 
@@ -925,6 +932,7 @@ ul, ol { padding-left: 1.5em; }
 	width: 1.75rem; height: 1.75rem; border-radius: 50%;
 	background: var(--uw-primary-light); color: var(--uw-primary);
 	font-size: .7rem; font-weight: 700; line-height: 1; flex-shrink: 0;
+	border: 1.5px solid rgba(37,99,235,.25);
 	border: 1.5px solid color-mix(in srgb, var(--uw-primary) 25%, transparent);
 }
 .post-card__read-more {

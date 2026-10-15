@@ -21,6 +21,7 @@ add_action( 'after_setup_theme', 'unitwise_theme_setup' );
 function unitwise_theme_setup(): void {
 	add_theme_support( 'title-tag' );
 	add_theme_support( 'post-thumbnails' );
+	add_image_size( 'unitwise-card', 400, 280, true );
 	add_theme_support( 'automatic-feed-links' );
 	add_theme_support( 'html5', [
 		'search-form',

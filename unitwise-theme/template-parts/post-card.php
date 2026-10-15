@@ -6,9 +6,9 @@
 ?>
 <li class="post-card">
 	<div class="post-card__thumb-wrap">
-		<a href="<?php the_permalink(); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
+		<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
 			<?php if ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( 'medium_large', [ 'loading' => 'lazy' ] ); ?>
+				<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => 'lazy' ] ); ?>
 			<?php else : ?>
 				<span class="post-card__thumb-placeholder" aria-hidden="true"><?php echo esc_html( strtoupper( substr( get_bloginfo( 'name' ), 0, 2 ) ) ); ?></span>
 			<?php endif; ?>
@@ -19,7 +19,7 @@
 	</div>
 	<div class="post-card__body">
 		<h2 class="post-card__title">
-			<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+			<a href="<?php echo esc_url( get_permalink() ); ?>"><?php echo esc_html( get_the_title() ); ?></a>
 		</h2>
 		<div class="post-card__meta">
 			<span class="post-card__author">
