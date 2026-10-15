@@ -344,7 +344,15 @@ class Unitwise_Seeder {
 		$skipped = 0;
 
 		foreach ( self::get_blog_posts() as $post_data ) {
-			$existing = get_page_by_path( $post_data['slug'], OBJECT, 'post' );
+			$existing_q = new WP_Query( [
+				'post_type'      => 'post',
+				'name'           => $post_data['slug'],
+				'post_status'    => 'any',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			] );
+			$existing = $existing_q->have_posts() ? true : false;
 			if ( $existing ) {
 				++$skipped;
 				continue;

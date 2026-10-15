@@ -4,7 +4,8 @@
  * Theetasoft-inspired design.
  */
 $converter_count = wp_count_posts( 'unitwise_converter' )->publish ?? 41;
-$category_count  = wp_count_terms( [ 'taxonomy' => 'unitwise_category', 'hide_empty' => false ] ) ?: 1;
+$count_result    = wp_count_terms( [ 'taxonomy' => 'unitwise_category', 'hide_empty' => false ] );
+$category_count  = ( is_wp_error( $count_result ) || ! $count_result ) ? 1 : (int) $count_result;
 ?>
 <section class="hub-hero" aria-label="<?php esc_attr_e( 'Site hero', 'unitwise-theme' ); ?>">
 	<div class="hub-hero__bg-grid" aria-hidden="true"></div>
@@ -14,7 +15,7 @@ $category_count  = wp_count_terms( [ 'taxonomy' => 'unitwise_category', 'hide_em
 		<div class="animate-rise">
 			<span class="hub-hero__badge">
 				<span class="hub-hero__badge-dot" aria-hidden="true"></span>
-				<?php esc_html_e( 'Free &amp; No Sign-up Required', 'unitwise-theme' ); ?>
+				<?php esc_html_e( 'Free & No Sign-up Required', 'unitwise-theme' ); ?>
 			</span>
 		</div>
 

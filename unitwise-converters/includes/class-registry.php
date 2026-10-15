@@ -81,6 +81,15 @@ class Unitwise_Registry {
 		return isset( self::get_factors( $category )[ $slug ] );
 	}
 
+	public static function get_unit_category( string $slug ): string {
+		foreach ( array_keys( self::$categories ) as $cat_slug ) {
+			if ( isset( self::get_factors( $cat_slug )[ $slug ] ) ) {
+				return $cat_slug;
+			}
+		}
+		return 'weight';
+	}
+
 	public static function get_all_slugs( string $category = 'weight' ): array {
 		return array_keys( self::get_factors( $category ) );
 	}

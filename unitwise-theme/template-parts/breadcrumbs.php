@@ -93,16 +93,14 @@ $home_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 ?>
 <div class="breadcrumb-bar">
 	<nav class="container" aria-label="<?php esc_attr_e( 'Breadcrumb', 'unitwise-theme' ); ?>">
-		<ol class="breadcrumb-bar__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+		<ol class="breadcrumb-bar__list"<?php if ( ! $has_own_schema ) { echo ' itemscope itemtype="https://schema.org/BreadcrumbList"'; } ?>>
 			<?php foreach ( $crumbs as $pos => $crumb ) :
 				$is_last  = ( $pos === count( $crumbs ) - 1 );
 				$is_home  = ! empty( $crumb['home'] );
 			?>
 			<li
 				class="breadcrumb-bar__item"
-				itemprop="itemListElement"
-				itemscope
-				itemtype="https://schema.org/ListItem"
+				<?php if ( ! $has_own_schema ) { echo 'itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"'; } ?>
 			>
 				<?php if ( $pos > 0 ) : ?>
 					<span class="breadcrumb-bar__sep" aria-hidden="true">&#8250;</span>
@@ -111,28 +109,30 @@ $home_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 				<?php if ( ! empty( $crumb['url'] ) && ! $is_last ) : ?>
 					<a class="breadcrumb-bar__link<?php echo $is_home ? ' breadcrumb-bar__link--home' : ''; ?>"
 					   href="<?php echo esc_url( $crumb['url'] ); ?>"
-					   itemprop="item">
+					   <?php if ( ! $has_own_schema ) { echo 'itemprop="item"'; } ?>>
 						<?php if ( $is_home ) : ?>
 							<?php echo $home_icon; // phpcs:ignore WordPress.Security.EscapeOutput ?>
-							<span class="screen-reader-text" itemprop="name"><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span class="screen-reader-text"<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>><?php echo esc_html( $crumb['label'] ); ?></span>
 						<?php else : ?>
-							<span itemprop="name"><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>><?php echo esc_html( $crumb['label'] ); ?></span>
 						<?php endif; ?>
 					</a>
 				<?php else : ?>
 					<?php if ( $is_home ) : ?>
 						<span class="breadcrumb-bar__link breadcrumb-bar__link--home breadcrumb-bar__current" aria-current="page">
 							<?php echo $home_icon; // phpcs:ignore WordPress.Security.EscapeOutput ?>
-							<span class="screen-reader-text" itemprop="name"><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span class="screen-reader-text"<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>><?php echo esc_html( $crumb['label'] ); ?></span>
 						</span>
 					<?php else : ?>
-						<span class="breadcrumb-bar__current" aria-current="page" itemprop="name">
+						<span class="breadcrumb-bar__current" aria-current="page"<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>>
 							<?php echo esc_html( $crumb['label'] ); ?>
 						</span>
 					<?php endif; ?>
 				<?php endif; ?>
 
+				<?php if ( ! $has_own_schema ) : ?>
 				<meta itemprop="position" content="<?php echo esc_attr( $pos + 1 ); ?>">
+				<?php endif; ?>
 			</li>
 			<?php endforeach; ?>
 		</ol>

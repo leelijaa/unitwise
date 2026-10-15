@@ -61,7 +61,7 @@ add_action( 'wp_head',          'unitwise_theme_thin_archive_noindex', 1 );
 add_action( 'template_redirect', 'unitwise_theme_redirect_attachments' );
 
 function unitwise_theme_thin_archive_noindex(): void {
-	if ( is_date() || is_tag() ) {
+	if ( is_date() || is_tag() || is_category() ) {
 		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
 	}
 }
@@ -207,7 +207,7 @@ function unitwise_theme_seo_tags(): void {
 		return;
 	}
 
-	$title = esc_html( wp_strip_all_tags( $title ) );
+	$title = esc_attr( wp_strip_all_tags( $title ) );
 	$desc  = esc_attr( wp_strip_all_tags( $desc ) );
 	$url   = esc_url( $url );
 	$site  = esc_attr( get_bloginfo( 'name' ) );
@@ -218,7 +218,11 @@ function unitwise_theme_seo_tags(): void {
 		$og_image = get_the_post_thumbnail_url( null, 'large' );
 	}
 	if ( ! $og_image ) {
-		$og_image = get_theme_mod( 'unitwise_og_image', get_template_directory_uri() . '/assets/images/og-default.jpg' );
+		$fallback = get_template_directory() . '/assets/images/og-default.jpg';
+		$og_image = get_theme_mod(
+			'unitwise_og_image',
+			file_exists( $fallback ) ? get_template_directory_uri() . '/assets/images/og-default.jpg' : ''
+		);
 	}
 
 	echo "<meta name=\"description\" content=\"{$desc}\">\n";
@@ -239,13 +243,6 @@ function unitwise_theme_seo_tags(): void {
 	}
 }
 
-// -------------------------------------------------------------------------
-// Template helpers
-
-/**
- * Generate the page <title> for <head> (used if no SEO plugin is active).
- * Hooked before wp_head so the title-tag feature picks it up.
- */
 // -------------------------------------------------------------------------
 // AJAX — Load More blog posts
 
@@ -306,16 +303,28 @@ function unitwise_theme_customizer( WP_Customize_Manager $wp_customize ): void {
 		'label'   => __( 'Default OG Image (1200×630 px)', 'unitwise-theme' ),
 		'section' => 'title_tagline',
 	] ) );
+
+	$wp_customize->add_setting( 'unitwise_logo_url', [ 'default' => '', 'sanitize_callback' => 'esc_url_raw' ] );
+	$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'unitwise_logo_url', [
+		'label'   => __( 'Site Logo (for JSON-LD Organization schema)', 'unitwise-theme' ),
+		'section' => 'title_tagline',
+	] ) );
 }
 
 // -------------------------------------------------------------------------
 // Bust footer converter column cache when converters are saved/deleted
 
-add_action( 'save_post_unitwise_converter', 'unitwise_theme_bust_footer_cache' );
-add_action( 'delete_post', 'unitwise_theme_bust_footer_cache' );
+add_action( 'save_post_unitwise_converter',   'unitwise_theme_bust_footer_cache' );
+add_action( 'delete_post_unitwise_converter', 'unitwise_theme_bust_footer_cache' );
+add_action( 'save_post',   'unitwise_theme_bust_footer_recent' );
+add_action( 'delete_post', 'unitwise_theme_bust_footer_recent' );
 
 function unitwise_theme_bust_footer_cache(): void {
 	delete_transient( 'uw_footer_cat_cols' );
+}
+
+function unitwise_theme_bust_footer_recent(): void {
+	delete_transient( 'uw_footer_recent_posts' );
 }
 
 // -------------------------------------------------------------------------

@@ -68,7 +68,7 @@ $all_siblings = $siblings_query ? $siblings_query->posts : [];
 		<ul class="unitwise-related-list">
 			<?php while ( $same_source->have_posts() ) : $same_source->the_post(); ?>
 				<li>
-					<a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+					<a href="<?php echo esc_url( get_permalink() ); ?>"><?php echo esc_html( get_the_title() ); ?></a>
 				</li>
 			<?php endwhile; wp_reset_postdata(); ?>
 		</ul>

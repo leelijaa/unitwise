@@ -259,7 +259,7 @@ class Unitwise_Schema {
 				'url'   => home_url( '/' ),
 				'logo'  => [
 					'@type' => 'ImageObject',
-					'url'   => get_template_directory_uri() . '/assets/images/logo.png',
+					'url'   => get_theme_mod( 'unitwise_logo_url', get_template_directory_uri() . '/assets/images/logo.png' ),
 				],
 			],
 		];
@@ -345,7 +345,7 @@ class Unitwise_Schema {
 	}
 
 	private static function print( array $data ): void {
-		$json = wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
+		$json = wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_HEX_TAG );
 		if ( false === $json ) {
 			return;
 		}

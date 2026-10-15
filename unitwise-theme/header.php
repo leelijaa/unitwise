@@ -15,9 +15,9 @@
 <header class="site-header" role="banner">
 	<div class="container site-header__inner">
 
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-header__logo" rel="home" aria-label="<?php bloginfo( 'name' ); ?> — Home">
+		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-header__logo" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> — Home">
 			<span class="site-header__logo-icon animate-logo-pop" aria-hidden="true">UW</span>
-			<span class="site-header__logo-text"><?php bloginfo( 'name' ); ?></span>
+			<span class="site-header__logo-text"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></span>
 		</a>
 
 		<nav class="site-header__nav" aria-label="<?php esc_attr_e( 'Primary navigation', 'unitwise-theme' ); ?>">

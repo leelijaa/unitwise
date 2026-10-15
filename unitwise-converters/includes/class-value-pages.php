@@ -698,8 +698,10 @@ class Unitwise_Value_Pages {
 			UNITWISE_VERSION
 		);
 		$cat = sanitize_key( get_post_meta( $id, self::META_CAT, true ) ?: 'weight' );
+		wp_register_script( 'unitwise-vp-data', false, [], false, [ 'in_footer' => true ] );
+		wp_enqueue_script( 'unitwise-vp-data' );
 		wp_localize_script(
-			'unitwise-theme',
+			'unitwise-vp-data',
 			'unitwiseData',
 			[
 				'factors'  => Unitwise_Registry::get_factors( $cat ),
@@ -760,7 +762,7 @@ class Unitwise_Value_Pages {
 		echo "<meta property=\"og:title\" content=\"{$title}\">\n";
 		echo "<meta property=\"og:description\" content=\"{$desc}\">\n";
 		echo "<meta property=\"og:url\" content=\"{$url}\">\n";
-		echo "<meta property=\"og:type\" content=\"article\">\n";
+		echo "<meta property=\"og:type\" content=\"website\">\n";
 		echo "<meta property=\"og:site_name\" content=\"{$site}\">\n";
 		if ( $og_image ) {
 			echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
@@ -858,7 +860,8 @@ class Unitwise_Value_Pages {
 		if ( ! Unitwise_Registry::unit_exists( $from_slug ) || ! Unitwise_Registry::unit_exists( $to_slug ) ) {
 			return null;
 		}
-		return [ 'value' => $value, 'from' => $from_slug, 'to' => $to_slug, 'cat' => 'weight' ];
+		$cat = Unitwise_Registry::get_unit_category( $from_slug );
+		return [ 'value' => $value, 'from' => $from_slug, 'to' => $to_slug, 'cat' => $cat ];
 	}
 
 	// =========================================================================

@@ -37,6 +37,7 @@ $unitwise_includes = [
 	'class-schema',
 	'class-seeder',
 	'class-value-pages',
+	'class-sitemap',
 ];
 
 foreach ( $unitwise_includes as $file ) {
@@ -72,4 +73,13 @@ function unitwise_boot(): void {
 	Unitwise_Schema::init();
 	Unitwise_Seeder::init();
 	Unitwise_Value_Pages::init();
+
+	add_action( 'init', function() {
+		if ( function_exists( 'wp_sitemaps_get_server' ) ) {
+			wp_sitemaps_get_server()->get_registry()->add_provider(
+				'unitwise_converters',
+				new Unitwise_Sitemap_Provider()
+			);
+		}
+	}, 20 );
 }

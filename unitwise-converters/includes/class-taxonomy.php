@@ -36,7 +36,7 @@ class Unitwise_Taxonomy {
 			'show_ui'            => true,
 			'show_in_menu'       => true,
 			'show_in_rest'       => true,
-			'query_var'          => 'unitwise_category',
+			'query_var'          => false,
 			// Rewrite handled by Unitwise_Rewrites.
 			'rewrite'            => false,
 		] );

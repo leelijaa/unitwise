@@ -46,10 +46,10 @@ $read_min = max( 1, (int) ceil( $words / 200 ) );
 				</div>
 			<?php endif; ?>
 
-			<h1 class="post-hero__title"><?php the_title(); ?></h1>
+			<h1 class="post-hero__title"><?php echo esc_html( get_the_title() ); ?></h1>
 
 			<div class="post-hero__meta">
-				<span><?php the_author(); ?></span>
+				<span><?php echo esc_html( get_the_author() ); ?></span>
 				<span class="post-hero__meta-sep" aria-hidden="true">·</span>
 				<time datetime="<?php echo esc_attr( get_the_date( 'c' ) ); ?>">
 					<?php echo esc_html( get_the_date() ); ?>

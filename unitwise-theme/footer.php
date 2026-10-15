@@ -95,7 +95,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 			<div class="site-footer__upper-col site-footer__upper-col--logo">
 				<a class="site-footer__logo" href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home">
 					<span class="site-footer__logo-icon" aria-hidden="true">UW</span>
-					<?php bloginfo( 'name' ); ?>
+					<?php echo esc_html( get_bloginfo( 'name' ) ); ?>
 				</a>
 				<p class="site-footer__tagline"><?php esc_html_e( 'Free, instant unit conversions. No sign-up. No ads.', 'unitwise-theme' ); ?></p>
 			</div>
@@ -178,12 +178,16 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 					<a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>"><?php esc_html_e( 'Blog', 'unitwise-theme' ); ?></a>
 				</h3>
 				<?php
-				$recent = get_posts( [
-					'post_type'      => 'post',
-					'posts_per_page' => 5,
-					'post_status'    => 'publish',
-					'no_found_rows'  => true,
-				] );
+				$recent = get_transient( 'uw_footer_recent_posts' );
+				if ( false === $recent ) {
+					$recent = get_posts( [
+						'post_type'      => 'post',
+						'posts_per_page' => 5,
+						'post_status'    => 'publish',
+						'no_found_rows'  => true,
+					] );
+					set_transient( 'uw_footer_recent_posts', $recent, HOUR_IN_SECONDS );
+				}
 				if ( $recent ) :
 				?>
 				<ul class="site-footer__col-links">
@@ -202,7 +206,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 					<li><a href="<?php echo esc_url( home_url( '/about/' ) ); ?>"><?php esc_html_e( 'About us', 'unitwise-theme' ); ?></a></li>
 					<li><a href="<?php echo esc_url( home_url( '/privacy-policy/' ) ); ?>"><?php esc_html_e( 'Privacy Policy', 'unitwise-theme' ); ?></a></li>
 					<li><a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>"><?php esc_html_e( 'Contact', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/sitemap.xml' ) ); ?>"><?php esc_html_e( 'Sitemap', 'unitwise-theme' ); ?></a></li>
+					<li><a href="<?php echo esc_url( home_url( '/wp-sitemap.xml' ) ); ?>"><?php esc_html_e( 'Sitemap', 'unitwise-theme' ); ?></a></li>
 				</ul>
 			</div>
 
@@ -220,7 +224,7 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 					'depth'                => 1,
 				] );
 			endif; ?>
-			<p>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>. <?php esc_html_e( 'All conversions are for informational purposes only.', 'unitwise-theme' ); ?></p>
+			<p>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></a>. <?php esc_html_e( 'All conversions are for informational purposes only.', 'unitwise-theme' ); ?></p>
 		</div>
 
 	</div><!-- /.container -->
