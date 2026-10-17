@@ -329,13 +329,16 @@ $GLOBALS['uw_crumbs'] = [
 	var fromKey = <?php echo wp_json_encode( $from ); ?>;
 	var toKey   = <?php echo wp_json_encode( $to ); ?>;
 
-	function formatResult( value, dp ) {
-		if ( value === 0 ) return '0';
-		var abs = Math.abs( value );
-		if ( abs < 0.0001 || abs >= 10000000 ) { return value.toExponential( 6 ); }
-		var str = value.toFixed( dp );
-		return str.replace( /(\.\d*?)0+$/, '$1' ).replace( /\.$/, '' );
-	}
+	// Reuse the shared formatter exposed by view.js; inline fallback for pages
+	// where the converter block is not present and view.js hasn't run.
+	var formatResult = ( window.UnitWise && window.UnitWise.formatResult )
+		|| function( value, dp ) {
+			if ( value === 0 ) return '0';
+			var abs = Math.abs( value );
+			if ( abs < 0.0001 || abs >= 10000000 ) { return value.toExponential( 6 ); }
+			var str = value.toFixed( dp );
+			return str.replace( /(\.\d*?)0+$/, '$1' ).replace( /\.$/, '' );
+		};
 
 	function recalc() {
 		if ( !window.unitwiseData || !window.unitwiseData.factors ) { return; }
