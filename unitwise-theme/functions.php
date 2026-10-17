@@ -51,6 +51,10 @@ function unitwise_theme_setup(): void {
 add_action( 'wp_head', 'unitwise_theme_preconnect', 1 );
 
 function unitwise_theme_preconnect(): void {
+	// Only emit preconnect hints when the font stylesheet is actually enqueued
+	if ( ! wp_style_is( 'unitwise-fonts', 'enqueued' ) ) {
+		return;
+	}
 	echo "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n";
 	echo "<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n";
 }
@@ -75,7 +79,7 @@ add_action( 'wp_head',          'unitwise_theme_thin_archive_noindex', 1 );
 add_action( 'template_redirect', 'unitwise_theme_redirect_attachments' );
 
 function unitwise_theme_thin_archive_noindex(): void {
-	if ( is_date() || is_tag() || is_category()
+	if ( is_date() || is_tag() || ( is_category() && ! is_tax( 'unitwise_category' ) )
 		|| ( is_paged() && ( is_home() || is_archive() ) )
 	) {
 		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
@@ -85,7 +89,9 @@ function unitwise_theme_thin_archive_noindex(): void {
 function unitwise_theme_redirect_attachments(): void {
 	if ( is_attachment() ) {
 		$parent = wp_get_post_parent_id( get_the_ID() );
-		$target = $parent ? get_permalink( $parent ) : home_url( '/' );
+		$target = ( $parent && 'publish' === get_post_status( $parent ) )
+			? get_permalink( $parent )
+			: home_url( '/' );
 		wp_redirect( esc_url_raw( $target ), 301 );
 		exit;
 	}
@@ -204,7 +210,9 @@ function unitwise_theme_seo_tags(): void {
 	} elseif ( is_singular() ) {
 		$og_type = 'article';
 		$title   = get_the_title() . ' | ' . get_bloginfo( 'name' );
-		$desc    = has_excerpt() ? wp_strip_all_tags( get_the_excerpt() ) : wp_trim_words( get_the_content(), 20 );
+		$desc    = has_excerpt()
+			? wp_strip_all_tags( get_the_excerpt() )
+			: wp_trim_words( wp_strip_all_tags( apply_filters( 'the_content', get_the_content() ) ), 20 );
 		$url     = get_permalink();
 
 	} elseif ( is_home() ) {
@@ -263,7 +271,7 @@ function unitwise_theme_seo_tags(): void {
 	}
 	$twitter_url = get_theme_mod( 'footer_social_twitter', '' );
 	$tw_card     = 'summary' . ( $og_image ? '_large_image' : '' );
-	echo "<meta name=\"twitter:card\" content=\"{$tw_card}\">\n";
+	echo "<meta name=\"twitter:card\" content=\"" . esc_attr( $tw_card ) . "\">\n";
 	if ( $twitter_url ) {
 		preg_match( '#(?:twitter|x)\.com/([^/?\s]+)#i', $twitter_url, $m );
 		$tw_site = isset( $m[1] ) ? '@' . $m[1] : $twitter_url;
@@ -342,6 +350,29 @@ function unitwise_theme_customizer( WP_Customize_Manager $wp_customize ): void {
 		'label'   => __( 'Site Logo (for JSON-LD Organization schema)', 'unitwise-theme' ),
 		'section' => 'title_tagline',
 	] ) );
+
+	// Social links section
+	$wp_customize->add_section( 'unitwise_social', [
+		'title'    => __( 'Social Links', 'unitwise-theme' ),
+		'priority' => 120,
+	] );
+
+	$social_fields = [
+		'footer_social_twitter'  => __( 'Twitter / X URL', 'unitwise-theme' ),
+		'footer_social_youtube'  => __( 'YouTube URL', 'unitwise-theme' ),
+		'footer_social_linkedin' => __( 'LinkedIn URL', 'unitwise-theme' ),
+		'footer_contact_email'   => __( 'Contact Email', 'unitwise-theme' ),
+	];
+
+	foreach ( $social_fields as $key => $label ) {
+		$sanitize = ( 'footer_contact_email' === $key ) ? 'sanitize_email' : 'esc_url_raw';
+		$wp_customize->add_setting( $key, [ 'default' => '', 'sanitize_callback' => $sanitize ] );
+		$wp_customize->add_control( $key, [
+			'label'   => $label,
+			'section' => 'unitwise_social',
+			'type'    => 'url',
+		] );
+	}
 }
 
 // -------------------------------------------------------------------------
@@ -369,6 +400,7 @@ function unitwise_theme_robots_txt( string $output, bool $public ): string {
 	if ( $public ) {
 		$output .= "\nDisallow: /?s=\n";
 		$output .= "Disallow: /?p=\n";
+		$output .= "Disallow: /?v=\n";
 		$output .= "Disallow: /?post_type=unitwise_converter\n";
 		$output .= "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
 	}
@@ -392,6 +424,9 @@ function unitwise_theme_document_title( array $title ): array {
 	} elseif ( $cat && class_exists( 'Unitwise_Registry' ) ) {
 		$cat_info       = Unitwise_Registry::get_category( $cat );
 		$title['title'] = ( $cat_info['name'] ?? ucfirst( $cat ) ) . ' Converters';
+	} elseif ( is_home() ) {
+		$page_for_posts = (int) get_option( 'page_for_posts' );
+		$title['title'] = $page_for_posts ? get_the_title( $page_for_posts ) : __( 'Blog', 'unitwise-theme' );
 	}
 
 	return $title;

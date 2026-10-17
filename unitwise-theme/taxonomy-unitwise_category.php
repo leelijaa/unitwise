@@ -34,7 +34,11 @@ $count = count( $posts );
 			<h1 class="silo-hero__title">
 				<?php
 				if ( $term ) {
-					echo esc_html( $term->name ) . ' <span class="accent">' . esc_html__( 'Converters', 'unitwise-theme' ) . '</span>';
+					printf(
+						'%s <span class="accent">%s</span>',
+						esc_html( $term->name ),
+						esc_html__( 'Converters', 'unitwise-theme' )
+					);
 				} else {
 					esc_html_e( 'Converters', 'unitwise-theme' );
 				}
@@ -92,7 +96,7 @@ $count = count( $posts );
 							<span class="silo-card__title"><?php echo esc_html( $converter_post->post_title ); ?></span>
 							<span class="silo-card__units"><?php echo esc_html( $from_lbl ); ?> → <?php echo esc_html( $to_lbl ); ?></span>
 							<span class="silo-card__arrow" aria-hidden="true">
-								<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+								<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
 							</span>
 						</a>
 					</li>

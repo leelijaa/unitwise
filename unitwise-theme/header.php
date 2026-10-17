@@ -38,8 +38,8 @@
 		</nav>
 
 		<div class="site-header__actions">
-			<button class="theme-toggle-btn" aria-label="<?php esc_attr_e( 'Toggle dark mode', 'unitwise-theme' ); ?>">🌙</button>
-			<button class="hamburger-btn" aria-label="<?php esc_attr_e( 'Open menu', 'unitwise-theme' ); ?>" aria-expanded="false" aria-controls="mobile-nav">☰</button>
+			<button class="theme-toggle-btn" aria-label="<?php esc_attr_e( 'Toggle dark mode', 'unitwise-theme' ); ?>"><span aria-hidden="true">🌙</span></button>
+			<button class="hamburger-btn" aria-label="<?php esc_attr_e( 'Open menu', 'unitwise-theme' ); ?>" aria-expanded="false" aria-controls="mobile-nav"><span aria-hidden="true">☰</span></button>
 		</div>
 
 	</div>

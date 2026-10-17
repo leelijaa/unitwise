@@ -15,12 +15,14 @@ $limit    = isset( $attributes['limit'] )    ? absint( $attributes['limit'] )   
 $title    = isset( $attributes['title'] )    ? sanitize_text_field( $attributes['title'] ) : '';
 
 $query = new WP_Query( [
-	'post_type'      => 'unitwise_converter',
-	'post_status'    => 'publish',
-	'posts_per_page' => $limit,
-	'orderby'        => 'title',
-	'order'          => 'ASC',
-	'tax_query'      => [
+	'post_type'           => 'unitwise_converter',
+	'post_status'         => 'publish',
+	'posts_per_page'      => $limit,
+	'orderby'             => 'title',
+	'order'               => 'ASC',
+	'no_found_rows'       => true,
+	'update_post_term_cache' => false,
+	'tax_query'           => [
 		[
 			'taxonomy' => 'unitwise_category',
 			'field'    => 'slug',

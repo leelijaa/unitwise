@@ -60,6 +60,12 @@
 
 		input.addEventListener( 'input', update );
 		update(); // Sync on load in case value differs from PHP default
+
+		// Prevent form submission creating indexable duplicate URLs
+		const form = block.querySelector( '.unitwise-converter-form' );
+		if ( form ) {
+			form.addEventListener( 'submit', function ( e ) { e.preventDefault(); } );
+		}
 	}
 
 	// Init all converter blocks on the page

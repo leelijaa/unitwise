@@ -33,7 +33,7 @@ class Unitwise_Rewrites {
 
 			// Converter page: /weight/grams-to-kilograms/
 			add_rewrite_rule(
-				'^' . $escaped . '/([a-z_]+)-to-([a-z_]+)/?$',
+				'^' . $escaped . '/([a-z_-]+)-to-([a-z_-]+)/?$',
 				'index.php?unitwise_cat=' . $cat_slug . '&unitwise_from=$matches[1]&unitwise_to=$matches[2]',
 				'top'
 			);
@@ -82,9 +82,11 @@ class Unitwise_Rewrites {
 		global $wp_query, $post;
 
 		$query = new WP_Query( [
-			'post_type'      => 'unitwise_converter',
-			'posts_per_page' => 1,
-			'meta_query'     => [
+			'post_type'              => 'unitwise_converter',
+			'posts_per_page'         => 1,
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'meta_query'             => [
 				'relation' => 'AND',
 				[ 'key' => 'unitwise_from_unit', 'value' => $from ],
 				[ 'key' => 'unitwise_to_unit',   'value' => $to   ],
@@ -135,9 +137,12 @@ class Unitwise_Rewrites {
 
 			// Load all converters for this category so templates can iterate.
 			$posts_query = new WP_Query( [
-				'post_type'      => 'unitwise_converter',
-				'posts_per_page' => -1,
-				'tax_query'      => [
+				'post_type'              => 'unitwise_converter',
+				'posts_per_page'         => -1,
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'tax_query'              => [
 					[
 						'taxonomy' => 'unitwise_category',
 						'field'    => 'slug',
@@ -203,7 +208,8 @@ class Unitwise_Rewrites {
 			$term = get_queried_object();
 			if ( $term instanceof WP_Term ) {
 				$clean = home_url( '/' . $term->slug . '/' );
-				if ( ! str_contains( $_SERVER['REQUEST_URI'] ?? '', '/' . $term->slug . '/' ) ) {
+				$request_path = wp_parse_url( esc_url_raw( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
+			if ( ! str_contains( (string) $request_path, '/' . $term->slug . '/' ) ) {
 					wp_redirect( $clean, 301 );
 					exit;
 				}

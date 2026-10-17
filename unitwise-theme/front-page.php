@@ -37,22 +37,18 @@ get_header();
 			'post_type'      => 'post',
 			'post_status'    => 'publish',
 			'posts_per_page' => 3,
+			'no_found_rows'  => true,
 		] );
 		if ( $recent_posts->have_posts() ) :
 		?>
 		<section class="hub-section" aria-label="<?php esc_attr_e( 'Latest articles', 'unitwise-theme' ); ?>">
-			<div class="hub-section__header hub-section__header--split">
-				<div>
-					<h2 class="hub-section__title"><?php esc_html_e( 'From the Blog', 'unitwise-theme' ); ?></h2>
-					<p class="hub-section__subtitle"><?php esc_html_e( 'Tips, guides, and insights about unit conversion.', 'unitwise-theme' ); ?></p>
-				</div>
-				<a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>" class="btn btn--primary">
-					<?php esc_html_e( 'All Posts →', 'unitwise-theme' ); ?>
-				</a>
+			<div class="hub-section__header">
+				<h2 class="hub-section__title"><?php esc_html_e( 'From the Blog', 'unitwise-theme' ); ?></h2>
+				<p class="hub-section__subtitle"><?php esc_html_e( 'Tips, guides, and insights about unit conversion.', 'unitwise-theme' ); ?></p>
 			</div>
 
 			<ul class="post-grid" role="list">
-				<?php while ( $recent_posts->have_posts() ) : $recent_posts->the_post();
+				<?php $is_first_card = true; while ( $recent_posts->have_posts() ) : $recent_posts->the_post();
 					$cats     = get_the_category();
 					$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
 					$words    = str_word_count( wp_strip_all_tags( get_the_content() ) );
@@ -62,7 +58,7 @@ get_header();
 					<div class="post-card__thumb-wrap">
 						<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
 							<?php if ( has_post_thumbnail() ) : ?>
-								<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => 'lazy' ] ); ?>
+								<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => $is_first_card ? 'eager' : 'lazy' ] ); ?>
 							<?php else : ?>
 								<span class="post-card__thumb-placeholder" aria-hidden="true"><?php echo esc_html( strtoupper( substr( get_bloginfo( 'name' ), 0, 2 ) ) ); ?></span>
 							<?php endif; ?>
@@ -71,6 +67,7 @@ get_header();
 							<a href="<?php echo esc_url( get_category_link( $cats[0]->term_id ) ); ?>" class="post-card__cat"><?php echo esc_html( $cat_name ); ?></a>
 						<?php endif; ?>
 					</div>
+					<?php $is_first_card = false; ?>
 					<div class="post-card__body">
 						<h3 class="post-card__title">
 							<a href="<?php echo esc_url( get_permalink() ); ?>"><?php echo esc_html( get_the_title() ); ?></a>
@@ -86,6 +83,12 @@ get_header();
 				</li>
 				<?php endwhile; wp_reset_postdata(); ?>
 			</ul>
+
+			<div class="hub-section__cta">
+				<a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>" class="btn btn--primary">
+					<?php esc_html_e( 'View All Posts', 'unitwise-theme' ); ?>
+				</a>
+			</div>
 		</section>
 		<?php endif; ?>
 

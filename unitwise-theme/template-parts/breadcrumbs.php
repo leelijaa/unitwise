@@ -131,7 +131,7 @@ $home_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 	</nav>
 </div>
 <?php if ( ! $has_own_schema ) : ?>
-<script type="application/ld+json"><?php echo wp_json_encode( $ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?></script>
+<script type="application/ld+json"><?php echo wp_json_encode( $ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ); ?></script>
 <?php endif; ?>
 <?php
 // Clean up the global after rendering

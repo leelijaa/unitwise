@@ -179,10 +179,12 @@ class Unitwise_Seeder {
 
 			// Idempotency check: look for existing post with the same meta combo.
 			$existing = get_posts( [
-				'post_type'   => 'unitwise_converter',
-				'post_status' => 'any',
-				'numberposts' => 1,
-				'meta_query'  => [
+				'post_type'     => 'unitwise_converter',
+				'post_status'   => 'any',
+				'numberposts'   => 1,
+				'fields'        => 'ids',
+				'no_found_rows' => true,
+				'meta_query'    => [
 					'relation' => 'AND',
 					[ 'key' => 'unitwise_from_unit', 'value' => $from ],
 					[ 'key' => 'unitwise_to_unit',   'value' => $to   ],

@@ -27,6 +27,12 @@ class Unitwise_Schema {
 		$from = get_query_var( 'unitwise_from' );
 		$to   = get_query_var( 'unitwise_to' );
 
+		// Blog posts
+		if ( is_singular( 'post' ) ) {
+			self::blog_post_schema();
+			return;
+		}
+
 		// Value pages (native WP pages with _uw_value_page meta)
 		if ( is_singular( 'page' ) ) {
 			$vid = get_the_ID();
@@ -70,6 +76,15 @@ class Unitwise_Schema {
 		$example = $engine->get_worked_example( 1, $from, $to );
 
 		$graph   = [];
+
+		// WebPage
+		$graph[] = [
+			'@type'    => 'WebPage',
+			'@id'      => $converter_url . '#webpage',
+			'url'      => $converter_url,
+			'name'     => "{$from_plural} to {$to_plural} Converter",
+			'isPartOf' => [ '@id' => home_url( '/#website' ) ],
+		];
 
 		// BreadcrumbList
 		$graph[] = self::breadcrumb( [
@@ -233,11 +248,19 @@ class Unitwise_Schema {
 	// Silo landing
 
 	private static function silo_schema( string $cat_slug ): void {
-		$cat   = Unitwise_Registry::get_category( $cat_slug );
-		$graph = [
+		$cat      = Unitwise_Registry::get_category( $cat_slug );
+		$silo_url = home_url( "/{$cat_slug}/" );
+		$graph    = [
+			[
+				'@type'    => 'CollectionPage',
+				'@id'      => $silo_url . '#collection',
+				'url'      => $silo_url,
+				'name'     => ( $cat['name'] ?? ucfirst( $cat_slug ) ) . ' Converters',
+				'isPartOf' => [ '@id' => home_url( '/#website' ) ],
+			],
 			self::breadcrumb( [
 				[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
-				[ 'name' => $cat['name'] ?? ucfirst( $cat_slug ), 'url' => home_url( "/{$cat_slug}/" ) ],
+				[ 'name' => $cat['name'] ?? ucfirst( $cat_slug ), 'url' => $silo_url ],
 			] ),
 		];
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
@@ -247,6 +270,23 @@ class Unitwise_Schema {
 	// Homepage
 
 	private static function home_schema(): void {
+		$logo_url = get_theme_mod( 'unitwise_logo_url', '' );
+
+		$org_node = [
+			'@type'  => 'Organization',
+			'@id'    => home_url( '/#organization' ),
+			'name'   => get_bloginfo( 'name' ),
+			'url'    => home_url( '/' ),
+			'sameAs' => array_values( array_filter( [
+				get_theme_mod( 'footer_social_twitter',  '' ),
+				get_theme_mod( 'footer_social_youtube',  '' ),
+				get_theme_mod( 'footer_social_linkedin', '' ),
+			] ) ),
+		];
+		if ( $logo_url ) {
+			$org_node['logo'] = [ '@type' => 'ImageObject', 'url' => $logo_url ];
+		}
+
 		$graph = [
 			[
 				'@type' => 'WebSite',
@@ -254,21 +294,7 @@ class Unitwise_Schema {
 				'name'  => get_bloginfo( 'name' ),
 				'url'   => home_url( '/' ),
 			],
-			[
-				'@type'  => 'Organization',
-				'@id'    => home_url( '/#organization' ),
-				'name'   => get_bloginfo( 'name' ),
-				'url'    => home_url( '/' ),
-				'logo'   => [
-					'@type' => 'ImageObject',
-					'url'   => get_theme_mod( 'unitwise_logo_url', get_template_directory_uri() . '/assets/images/logo.png' ),
-				],
-				'sameAs' => array_values( array_filter( [
-					get_theme_mod( 'footer_social_twitter',  '' ),
-					get_theme_mod( 'footer_social_youtube',  '' ),
-					get_theme_mod( 'footer_social_linkedin', '' ),
-				] ) ),
-			],
+			$org_node,
 		];
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
 	}
@@ -277,18 +303,55 @@ class Unitwise_Schema {
 
 	private static function blog_index_schema(): void {
 		$page_for_posts = (int) get_option( 'page_for_posts' );
-		$url   = $page_for_posts ? get_permalink( $page_for_posts ) : home_url( '/blog/' );
+		$url   = $page_for_posts ? (string) get_permalink( $page_for_posts ) : home_url( '/blog/' );
 		$title = $page_for_posts ? get_the_title( $page_for_posts ) : ( get_bloginfo( 'name' ) . ' Blog' );
 		$graph = [
 			[
-				'@type'           => 'CollectionPage',
-				'@id'             => $url,
-				'name'            => $title,
-				'url'             => $url,
-				'isPartOf'        => [ '@id' => home_url( '/#website' ) ],
-				'inLanguage'      => get_bloginfo( 'language' ),
+				'@type'      => 'CollectionPage',
+				'@id'        => $url . '#blog',
+				'name'       => $title,
+				'url'        => $url,
+				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
+				'inLanguage' => get_bloginfo( 'language' ),
 			],
 		];
+		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
+	}
+
+	// Blog post (Article)
+
+	private static function blog_post_schema(): void {
+		$post_id = get_the_ID();
+		if ( ! $post_id ) {
+			return;
+		}
+		$url         = (string) get_permalink( $post_id );
+		$title       = wp_strip_all_tags( get_the_title( $post_id ) );
+		$author_name = get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', $post_id ) );
+		$published   = get_the_date( 'c', $post_id );
+		$modified    = get_the_modified_date( 'c', $post_id );
+
+		$graph = [
+			[
+				'@type'            => 'Article',
+				'@id'              => $url . '#article',
+				'url'              => $url,
+				'headline'         => $title,
+				'datePublished'    => $published,
+				'dateModified'     => $modified,
+				'isPartOf'         => [ '@id' => home_url( '/#website' ) ],
+				'author'           => [
+					'@type' => 'Person',
+					'name'  => $author_name,
+				],
+				'publisher'        => [ '@id' => home_url( '/#organization' ) ],
+				'inLanguage'       => get_bloginfo( 'language' ),
+			],
+		];
+		if ( has_post_thumbnail( $post_id ) ) {
+			$graph[0]['image'] = [ '@type' => 'ImageObject', 'url' => get_the_post_thumbnail_url( $post_id, 'large' ) ];
+		}
+
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
 	}
 
@@ -302,7 +365,7 @@ class Unitwise_Schema {
 				'@type'    => 'ListItem',
 				'position' => $pos + 1,
 				'name'     => $item['name'],
-				'item'     => $item['url'],
+				'item'     => [ '@id' => $item['url'] ],
 			];
 		}
 		return [ '@type' => 'BreadcrumbList', 'itemListElement' => $list ];

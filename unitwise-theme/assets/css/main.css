@@ -554,6 +554,7 @@ ul, ol { padding-left: 1.5em; }
 .hub-section__header { margin-bottom: var(--uw-space-8); }
 .hub-section__header--split { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--uw-space-4); flex-wrap: wrap; }
 .hub-section__header--split .btn { white-space: nowrap; }
+.hub-section__cta { margin-top: var(--uw-space-12); display: flex; justify-content: center; }
 .hub-section__title { font-size: clamp(1.375rem, 3vw, 1.875rem); letter-spacing: -.025em; }
 .hub-section__subtitle { font-size: 1rem; color: var(--uw-text-muted); margin-top: var(--uw-space-2); }
 
@@ -834,24 +835,6 @@ ul, ol { padding-left: 1.5em; }
 .unitwise-formula-inline { margin-top: var(--uw-space-3); font-size: .8125rem; color: var(--uw-text-muted); }
 .unitwise-formula-inline code { background: var(--uw-surface); padding: .1em .4em; border-radius: var(--uw-radius-sm); border: 1px solid var(--uw-border); }
 
-/* Formula block */
-.unitwise-formula-block {
-	background: var(--uw-surface); border: 1px solid var(--uw-border);
-	border-radius: var(--uw-radius); padding: var(--uw-space-4) var(--uw-space-6);
-	font-family: var(--uw-font-mono); font-size: .9375rem;
-}
-
-/* Worked example */
-.unitwise-worked-example {
-	background: var(--uw-surface);
-	border-left: 3px solid var(--uw-primary);
-	border-radius: 0 var(--uw-radius) var(--uw-radius) 0;
-	padding: var(--uw-space-4) var(--uw-space-6);
-}
-.unitwise-worked-example code {
-	display: block; font-size: .9375rem; color: var(--uw-primary-dark); margin-top: var(--uw-space-2);
-}
-
 /* Conversion table */
 .unitwise-conversion-table { width: 100%; border-collapse: collapse; font-size: .9375rem; border-radius: var(--uw-radius); overflow: hidden; }
 .unitwise-conversion-table thead tr { background: var(--uw-surface); }
@@ -1022,6 +1005,7 @@ ul, ol { padding-left: 1.5em; }
 }
 .unitwise-faq__item[open] .unitwise-faq__question::after { transform: rotate(45deg); }
 .unitwise-faq__answer { margin: 0 0 var(--uw-space-4); font-size: .9375rem; color: var(--uw-text-muted); line-height: 1.7; }
+.unitwise-faq__question:focus-visible { outline: 2px solid var(--uw-primary); outline-offset: 2px; }
 
 /* --------------------------------------------------------------------------
    HowTo steps

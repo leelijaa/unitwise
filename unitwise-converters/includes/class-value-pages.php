@@ -698,7 +698,7 @@ class Unitwise_Value_Pages {
 			UNITWISE_VERSION
 		);
 		$cat = sanitize_key( get_post_meta( $id, self::META_CAT, true ) ?: 'weight' );
-		wp_register_script( 'unitwise-vp-data', false, [], false, [ 'in_footer' => true ] );
+		wp_register_script( 'unitwise-vp-data', false, [], UNITWISE_VERSION, [ 'in_footer' => true ] );
 		wp_enqueue_script( 'unitwise-vp-data' );
 		wp_localize_script(
 			'unitwise-vp-data',
@@ -769,7 +769,7 @@ class Unitwise_Value_Pages {
 			echo "<meta property=\"og:image:height\" content=\"630\">\n";
 		}
 		$tw_card = $og_image ? 'summary_large_image' : 'summary';
-		echo "<meta name=\"twitter:card\" content=\"{$tw_card}\">\n";
+		echo "<meta name=\"twitter:card\" content=\"" . esc_attr( $tw_card ) . "\">\n";
 		echo "<meta name=\"twitter:title\" content=\"" . esc_attr( $title_raw ) . "\">\n";
 		echo "<meta name=\"twitter:description\" content=\"" . esc_attr( $desc_raw ) . "\">\n";
 		if ( $og_image ) {
