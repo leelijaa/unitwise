@@ -256,6 +256,7 @@ function unitwise_theme_seo_tags(): void {
 	echo "<meta property=\"og:url\" content=\"{$url}\">\n";
 	echo "<meta property=\"og:type\" content=\"" . esc_attr( $og_type ) . "\">\n";
 	echo "<meta property=\"og:site_name\" content=\"{$site}\">\n";
+	echo "<meta property=\"og:locale\" content=\"" . esc_attr( str_replace( '-', '_', get_locale() ) ) . "\">\n";
 	if ( $og_image ) {
 		echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
 		echo "<meta property=\"og:image:width\" content=\"1200\">\n";

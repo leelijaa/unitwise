@@ -985,7 +985,7 @@ ul, ol { padding-left: 1.5em; }
 .post-nav .nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: var(--uw-space-4); }
 .post-nav a { display: block; padding: var(--uw-space-4); background: var(--uw-surface); border: 1px solid var(--uw-border); border-radius: var(--uw-radius); text-decoration: none; color: var(--uw-text); font-size: .9375rem; font-weight: 500; transition: border-color .15s; }
 .post-nav a:hover { border-color: var(--uw-primary); color: var(--uw-primary); }
-.post-nav .nav-next { text-align: right; }
+.post-nav .nav-next { text-align: right; grid-column-start: 2; }
 .post-nav .nav-label { display: block; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--uw-text-muted); margin-bottom: .25rem; }
 
 /* --------------------------------------------------------------------------

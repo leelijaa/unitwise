@@ -197,7 +197,7 @@ class Unitwise_Schema {
 		// WebPage
 		$graph[] = [
 			'@type'      => 'WebPage',
-			'@id'        => $url,
+			'@id'        => $url . '#webpage',
 			'url'        => $url,
 			'name'       => "{$v_str} {$from_l} to {$to_l}",
 			'inLanguage' => get_bloginfo( 'language' ),
@@ -342,26 +342,37 @@ class Unitwise_Schema {
 		$published   = get_the_date( 'c', $post_id );
 		$modified    = get_the_modified_date( 'c', $post_id );
 
-		$graph = [
-			[
-				'@type'            => 'Article',
-				'@id'              => $url . '#article',
-				'url'              => $url,
-				'headline'         => $title,
-				'datePublished'    => $published,
-				'dateModified'     => $modified,
-				'isPartOf'         => [ '@id' => home_url( '/#website' ) ],
-				'author'           => [
-					'@type' => 'Person',
-					'name'  => $author_name,
-				],
-				'publisher'        => [ '@id' => home_url( '/#organization' ) ],
-				'inLanguage'       => get_bloginfo( 'language' ),
+		$article = [
+			'@type'             => 'Article',
+			'@id'               => $url . '#article',
+			'url'               => $url,
+			'headline'          => $title,
+			'datePublished'     => $published,
+			'dateModified'      => $modified,
+			'mainEntityOfPage'  => [ '@id' => $url . '#webpage' ],
+			'isPartOf'          => [ '@id' => home_url( '/#website' ) ],
+			'author'            => [
+				'@type' => 'Person',
+				'name'  => $author_name,
 			],
+			'publisher'         => [ '@id' => home_url( '/#organization' ) ],
+			'inLanguage'        => get_bloginfo( 'language' ),
 		];
 		if ( has_post_thumbnail( $post_id ) ) {
-			$graph[0]['image'] = [ '@type' => 'ImageObject', 'url' => get_the_post_thumbnail_url( $post_id, 'large' ) ];
+			$article['image'] = [ '@type' => 'ImageObject', 'url' => get_the_post_thumbnail_url( $post_id, 'large' ) ];
 		}
+
+		$graph = [
+			[
+				'@type'      => 'WebPage',
+				'@id'        => $url . '#webpage',
+				'url'        => $url,
+				'name'       => $title,
+				'inLanguage' => get_bloginfo( 'language' ),
+				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
+			],
+			$article,
+		];
 
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
 	}

@@ -50,6 +50,7 @@ $formula       = $engine->get_formula( $from, $to );
 // each get their own category factors (avoids the static-flag first-block-wins bug).
 $cat_slug     = get_query_var( 'unitwise_cat' ) ?: Unitwise_Registry::get_unit_category( $from );
 $block_factors = wp_json_encode( Unitwise_Registry::get_factors( $cat_slug ) );
+$result_id     = 'unitwise-result-' . $from . '-' . $to;
 ?>
 <section
 	class="unitwise-converter-block"
@@ -82,12 +83,12 @@ $block_factors = wp_json_encode( Unitwise_Registry::get_factors( $cat_slug ) );
 			<div class="unitwise-equals" aria-hidden="true">=</div>
 
 			<div class="unitwise-output-group">
-				<label class="unitwise-label" for="unitwise-result-display">
+				<label class="unitwise-label" for="<?php echo esc_attr( $result_id ); ?>">
 					<?php echo esc_html( $to_plural ); ?>
 					<span class="unitwise-symbol">(<?php echo esc_html( $to_sym ); ?>)</span>
 				</label>
 				<output
-					id="unitwise-result-display"
+					id="<?php echo esc_attr( $result_id ); ?>"
 					class="unitwise-result"
 					for="unitwise-input-<?php echo esc_attr( $from ); ?>"
 					aria-live="polite"

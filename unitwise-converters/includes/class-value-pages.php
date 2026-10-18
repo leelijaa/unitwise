@@ -763,6 +763,7 @@ class Unitwise_Value_Pages {
 		echo "<meta property=\"og:url\" content=\"" . esc_url( $url_raw ) . "\">\n";
 		echo "<meta property=\"og:type\" content=\"website\">\n";
 		echo "<meta property=\"og:site_name\" content=\"" . esc_attr( $site ) . "\">\n";
+		echo "<meta property=\"og:locale\" content=\"" . esc_attr( str_replace( '-', '_', get_locale() ) ) . "\">\n";
 		if ( $og_image ) {
 			echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
 			echo "<meta property=\"og:image:width\" content=\"1200\">\n";
