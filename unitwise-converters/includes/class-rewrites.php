@@ -82,11 +82,10 @@ class Unitwise_Rewrites {
 		global $wp_query, $post;
 
 		$query = new WP_Query( [
-			'post_type'              => 'unitwise_converter',
-			'posts_per_page'         => 1,
-			'no_found_rows'          => true,
-			'update_post_meta_cache' => false,
-			'meta_query'             => [
+			'post_type'      => 'unitwise_converter',
+			'posts_per_page' => 1,
+			'no_found_rows'  => true,
+			'meta_query'     => [
 				'relation' => 'AND',
 				[ 'key' => 'unitwise_from_unit', 'value' => $from ],
 				[ 'key' => 'unitwise_to_unit',   'value' => $to   ],

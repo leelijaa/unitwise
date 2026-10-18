@@ -308,7 +308,7 @@ function unitwise_load_more_posts(): void {
 		$query->the_post();
 		$cats     = get_the_category();
 		$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
-		include get_template_directory() . '/template-parts/post-card.php';
+		get_template_part( 'template-parts/post-card', null, [ 'cats' => $cats, 'cat_name' => $cat_name ] );
 	}
 	wp_reset_postdata();
 	$html = ob_get_clean();
@@ -405,6 +405,10 @@ function unitwise_theme_robots_txt( string $output, bool $public ): string {
 		$output .= "Disallow: /?v=\n";
 		$output .= "Disallow: /?post_type=unitwise_converter\n";
 		$output .= "Disallow: /?author=\n";
+		$output .= "Disallow: /feed/\n";
+		$output .= "Disallow: /*/feed/\n";
+		$output .= "Disallow: /?unitwise_cat=\n";
+		$output .= "Disallow: /?unitwise_from=\n";
 		$output .= "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
 	}
 	return $output;

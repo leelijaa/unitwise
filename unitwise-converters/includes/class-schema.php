@@ -300,10 +300,18 @@ class Unitwise_Schema {
 				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 			],
 			[
-				'@type' => 'WebSite',
-				'@id'   => home_url( '/#website' ),
-				'name'  => get_bloginfo( 'name' ),
-				'url'   => home_url( '/' ),
+				'@type'          => 'WebSite',
+				'@id'            => home_url( '/#website' ),
+				'name'           => get_bloginfo( 'name' ),
+				'url'            => home_url( '/' ),
+				'potentialAction' => [
+					'@type'       => 'SearchAction',
+					'target'      => [
+						'@type'       => 'EntryPoint',
+						'urlTemplate' => home_url( '/?s={search_term_string}' ),
+					],
+					'query-input' => 'required name=search_term_string',
+				],
 			],
 			$org_node,
 		];
@@ -325,6 +333,10 @@ class Unitwise_Schema {
 				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 				'inLanguage' => get_bloginfo( 'language' ),
 			],
+			self::breadcrumb( [
+				[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
+				[ 'name' => $title, 'url' => $url ],
+			] ),
 		];
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
 	}

@@ -61,7 +61,9 @@ class Unitwise_Sitemap_Provider extends WP_Sitemaps_Provider {
 	}
 
 	public function get_max_num_pages( $object_subtype = '' ): int {
-		$total = wp_count_posts( 'unitwise_converter' )->publish ?? 0;
-		return (int) ceil( $total / $this->get_max_num_urls() );
+		$total = (int) ( wp_count_posts( 'unitwise_converter' )->publish ?? 0 );
+		$pages = (int) ceil( $total / $this->get_max_num_urls() );
+		// Always emit at least page 1 so silo URLs are included before the seeder runs.
+		return max( 1, $pages );
 	}
 }
