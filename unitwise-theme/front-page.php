@@ -84,7 +84,11 @@ get_header();
 			</ul>
 
 			<div class="hub-section__cta">
-				<a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>" class="btn btn--primary">
+				<?php
+			$blog_pid  = (int) get_option( 'page_for_posts' );
+			$blog_href = $blog_pid ? get_permalink( $blog_pid ) : home_url( '/blog/' );
+			?>
+			<a href="<?php echo esc_url( $blog_href ); ?>" class="btn btn--primary">
 					<?php esc_html_e( 'View All Posts', 'unitwise-theme' ); ?>
 				</a>
 			</div>

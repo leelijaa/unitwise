@@ -283,6 +283,7 @@ function unitwise_theme_seo_tags(): void {
 	echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
 	if ( $og_image ) {
 		echo "<meta name=\"twitter:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		echo "<meta name=\"twitter:image:alt\" content=\"{$title}\">\n";
 	}
 }
 

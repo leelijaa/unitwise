@@ -51,7 +51,9 @@ if ( is_array( $passed ) && ! empty( $passed ) ) {
 		}
 		$crumbs[] = [ 'label' => get_the_title(), 'url' => '' ];
 	} elseif ( is_home() || is_category() ) {
-		$crumbs[] = [ 'label' => __( 'Blog', 'unitwise-theme' ), 'url' => '' ];
+		$blog_page_id = (int) get_option( 'page_for_posts' );
+		$blog_label   = $blog_page_id ? get_the_title( $blog_page_id ) : __( 'Blog', 'unitwise-theme' );
+		$crumbs[] = [ 'label' => $blog_label, 'url' => '' ];
 	} elseif ( is_search() ) {
 		$crumbs[] = [ 'label' => sprintf( __( 'Search: %s', 'unitwise-theme' ), get_search_query() ), 'url' => '' ];
 	} elseif ( is_404() ) {
@@ -78,7 +80,7 @@ foreach ( $crumbs as $pos => $crumb ) {
 		'name'     => $crumb['label'],
 	];
 	if ( ! empty( $crumb['url'] ) ) {
-		$ld_item['item'] = $crumb['url'];
+		$ld_item['item'] = [ '@id' => $crumb['url'] ];
 	}
 	$ld_items[] = $ld_item;
 }

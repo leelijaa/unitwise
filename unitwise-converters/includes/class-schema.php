@@ -374,6 +374,20 @@ class Unitwise_Schema {
 			$article['image'] = [ '@type' => 'ImageObject', 'url' => get_the_post_thumbnail_url( $post_id, 'large' ) ];
 		}
 
+		// BreadcrumbList: Home → Category (or Blog) → Post
+		$cats = get_the_category( $post_id );
+		$bc   = [ [ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ] ];
+		if ( $cats ) {
+			$bc[] = [ 'name' => $cats[0]->name, 'url' => (string) get_category_link( $cats[0]->term_id ) ];
+		} else {
+			$blog_pid = (int) get_option( 'page_for_posts' );
+			$bc[] = [
+				'name' => $blog_pid ? get_the_title( $blog_pid ) : __( 'Blog', 'unitwise-converters' ),
+				'url'  => $blog_pid ? (string) get_permalink( $blog_pid ) : home_url( '/blog/' ),
+			];
+		}
+		$bc[] = [ 'name' => $title, 'url' => $url ];
+
 		$graph = [
 			[
 				'@type'      => 'WebPage',
@@ -384,6 +398,7 @@ class Unitwise_Schema {
 				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 			],
 			$article,
+			self::breadcrumb( $bc ),
 		];
 
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
