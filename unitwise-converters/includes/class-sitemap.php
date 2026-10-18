@@ -27,7 +27,7 @@ class Unitwise_Sitemap_Provider extends WP_Sitemaps_Provider {
 			'post_status'    => 'publish',
 			'posts_per_page' => $per_page,
 			'offset'         => $offset,
-			'no_found_rows'  => false,
+			'no_found_rows'  => true,
 			'orderby'        => 'ID',
 			'order'          => 'ASC',
 		] );

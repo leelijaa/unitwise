@@ -26,7 +26,7 @@ get_header();
 				<?php while ( have_posts() ) : the_post(); ?>
 					<li class="post-card">
 						<article class="post-card__inner">
-							<h2 class="post-card__title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+							<h2 class="post-card__title"><a href="<?php echo esc_url( get_permalink() ); ?>"><?php the_title(); ?></a></h2>
 							<?php if ( has_excerpt() ) : ?>
 								<p class="post-card__excerpt"><?php the_excerpt(); ?></p>
 							<?php endif; ?>

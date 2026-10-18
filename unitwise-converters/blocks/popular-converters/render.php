@@ -20,9 +20,8 @@ $query = new WP_Query( [
 	'posts_per_page'      => $limit,
 	'orderby'             => 'title',
 	'order'               => 'ASC',
-	'no_found_rows'       => true,
-	'update_post_term_cache' => false,
-	'tax_query'           => [
+	'no_found_rows' => true,
+	'tax_query'     => [
 		[
 			'taxonomy' => 'unitwise_category',
 			'field'    => 'slug',

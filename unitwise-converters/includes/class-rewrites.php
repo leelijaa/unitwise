@@ -137,12 +137,10 @@ class Unitwise_Rewrites {
 
 			// Load all converters for this category so templates can iterate.
 			$posts_query = new WP_Query( [
-				'post_type'              => 'unitwise_converter',
-				'posts_per_page'         => -1,
-				'no_found_rows'          => true,
-				'update_post_meta_cache' => false,
-				'update_post_term_cache' => false,
-				'tax_query'              => [
+				'post_type'      => 'unitwise_converter',
+				'posts_per_page' => -1,
+				'no_found_rows'  => true,
+				'tax_query'      => [
 					[
 						'taxonomy' => 'unitwise_category',
 						'field'    => 'slug',

@@ -767,6 +767,7 @@ class Unitwise_Value_Pages {
 			echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
 			echo "<meta property=\"og:image:width\" content=\"1200\">\n";
 			echo "<meta property=\"og:image:height\" content=\"630\">\n";
+			echo "<meta property=\"og:image:alt\" content=\"" . esc_attr( $title_raw ) . "\">\n";
 		}
 		$tw_card = $og_image ? 'summary_large_image' : 'summary';
 		echo "<meta name=\"twitter:card\" content=\"" . esc_attr( $tw_card ) . "\">\n";

@@ -48,7 +48,7 @@ get_header();
 			</div>
 
 			<ul class="post-grid" role="list">
-				<?php $is_first_card = true; while ( $recent_posts->have_posts() ) : $recent_posts->the_post();
+				<?php while ( $recent_posts->have_posts() ) : $recent_posts->the_post();
 					$cats     = get_the_category();
 					$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
 					$words    = str_word_count( wp_strip_all_tags( get_the_content() ) );
@@ -58,7 +58,7 @@ get_header();
 					<div class="post-card__thumb-wrap">
 						<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
 							<?php if ( has_post_thumbnail() ) : ?>
-								<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => $is_first_card ? 'eager' : 'lazy' ] ); ?>
+								<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => 'lazy' ] ); ?>
 							<?php else : ?>
 								<span class="post-card__thumb-placeholder" aria-hidden="true"><?php echo esc_html( strtoupper( substr( get_bloginfo( 'name' ), 0, 2 ) ) ); ?></span>
 							<?php endif; ?>
@@ -67,7 +67,6 @@ get_header();
 							<a href="<?php echo esc_url( get_category_link( $cats[0]->term_id ) ); ?>" class="post-card__cat"><?php echo esc_html( $cat_name ); ?></a>
 						<?php endif; ?>
 					</div>
-					<?php $is_first_card = false; ?>
 					<div class="post-card__body">
 						<h3 class="post-card__title">
 							<a href="<?php echo esc_url( get_permalink() ); ?>"><?php echo esc_html( get_the_title() ); ?></a>

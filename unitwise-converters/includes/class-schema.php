@@ -79,11 +79,12 @@ class Unitwise_Schema {
 
 		// WebPage
 		$graph[] = [
-			'@type'    => 'WebPage',
-			'@id'      => $converter_url . '#webpage',
-			'url'      => $converter_url,
-			'name'     => "{$from_plural} to {$to_plural} Converter",
-			'isPartOf' => [ '@id' => home_url( '/#website' ) ],
+			'@type'      => 'WebPage',
+			'@id'        => $converter_url . '#webpage',
+			'url'        => $converter_url,
+			'name'       => "{$from_plural} to {$to_plural} Converter",
+			'inLanguage' => get_bloginfo( 'language' ),
+			'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 		];
 
 		// BreadcrumbList
@@ -96,6 +97,7 @@ class Unitwise_Schema {
 		// WebApplication
 		$graph[] = [
 			'@type'               => 'WebApplication',
+			'@id'                 => $converter_url . '#webapp',
 			'name'                => "{$from_plural} to {$to_plural} Converter",
 			'applicationCategory' => 'UtilityApplication',
 			'operatingSystem'     => 'Web',
@@ -252,11 +254,12 @@ class Unitwise_Schema {
 		$silo_url = home_url( "/{$cat_slug}/" );
 		$graph    = [
 			[
-				'@type'    => 'CollectionPage',
-				'@id'      => $silo_url . '#collection',
-				'url'      => $silo_url,
-				'name'     => ( $cat['name'] ?? ucfirst( $cat_slug ) ) . ' Converters',
-				'isPartOf' => [ '@id' => home_url( '/#website' ) ],
+				'@type'      => 'CollectionPage',
+				'@id'        => $silo_url . '#collection',
+				'url'        => $silo_url,
+				'name'       => ( $cat['name'] ?? ucfirst( $cat_slug ) ) . ' Converters',
+				'inLanguage' => get_bloginfo( 'language' ),
+				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 			],
 			self::breadcrumb( [
 				[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
@@ -288,6 +291,14 @@ class Unitwise_Schema {
 		}
 
 		$graph = [
+			[
+				'@type'      => 'WebPage',
+				'@id'        => home_url( '/#webpage' ),
+				'url'        => home_url( '/' ),
+				'name'       => get_bloginfo( 'name' ),
+				'inLanguage' => get_bloginfo( 'language' ),
+				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
+			],
 			[
 				'@type' => 'WebSite',
 				'@id'   => home_url( '/#website' ),

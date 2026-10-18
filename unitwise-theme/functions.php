@@ -260,6 +260,7 @@ function unitwise_theme_seo_tags(): void {
 		echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
 		echo "<meta property=\"og:image:width\" content=\"1200\">\n";
 		echo "<meta property=\"og:image:height\" content=\"630\">\n";
+		echo "<meta property=\"og:image:alt\" content=\"{$title}\">\n";
 	}
 	if ( 'article' === $og_type ) {
 		echo "<meta property=\"article:published_time\" content=\"" . esc_attr( get_the_date( 'c' ) ) . "\">\n";
@@ -402,6 +403,7 @@ function unitwise_theme_robots_txt( string $output, bool $public ): string {
 		$output .= "Disallow: /?p=\n";
 		$output .= "Disallow: /?v=\n";
 		$output .= "Disallow: /?post_type=unitwise_converter\n";
+		$output .= "Disallow: /?author=\n";
 		$output .= "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
 	}
 	return $output;

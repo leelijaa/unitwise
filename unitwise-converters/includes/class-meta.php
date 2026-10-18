@@ -46,10 +46,24 @@ class Unitwise_Meta {
 		] );
 
 		register_post_meta( 'unitwise_converter', 'unitwise_faq_override', [
-			'type'          => 'array',
-			'description'   => 'Custom FAQ items: array of {q, a} objects.',
-			'single'        => true,
-			'auth_callback' => fn() => current_user_can( 'edit_posts' ),
+			'type'              => 'array',
+			'description'       => 'Custom FAQ items: array of {q, a} objects.',
+			'single'            => true,
+			'sanitize_callback' => function( $value ) {
+				if ( ! is_array( $value ) ) {
+					return [];
+				}
+				return array_map( function( $item ) {
+					if ( ! is_array( $item ) ) {
+						return [];
+					}
+					return [
+						'q' => sanitize_textarea_field( $item['q'] ?? '' ),
+						'a' => wp_kses_post( $item['a'] ?? '' ),
+					];
+				}, $value );
+			},
+			'auth_callback'     => fn() => current_user_can( 'edit_posts' ),
 			'show_in_rest'  => [
 				'schema' => [
 					'type'  => 'array',

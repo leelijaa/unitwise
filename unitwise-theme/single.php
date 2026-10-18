@@ -60,7 +60,7 @@ $read_min = max( 1, (int) ceil( $words / 200 ) );
 
 			<?php if ( has_post_thumbnail() ) : ?>
 			<div class="post-hero__thumb">
-				<?php the_post_thumbnail( 'large', [ 'loading' => 'eager' ] ); ?>
+				<?php the_post_thumbnail( 'large', [ 'loading' => 'eager', 'fetchpriority' => 'high' ] ); ?>
 			</div>
 			<?php endif; ?>
 
