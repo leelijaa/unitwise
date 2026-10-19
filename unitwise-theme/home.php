@@ -11,8 +11,14 @@ global $wp_query;
 <main id="main-content" class="site-main blog-index">
 	<div class="container">
 
+		<?php get_template_part( 'template-parts/breadcrumbs' ); ?>
+
 		<header class="blog-index__header">
-			<h1 class="blog-index__title"><?php esc_html_e( 'Blog', 'unitwise-theme' ); ?></h1>
+			<?php
+			$blog_page_id = (int) get_option( 'page_for_posts' );
+			$blog_title   = $blog_page_id ? get_the_title( $blog_page_id ) : __( 'Blog', 'unitwise-theme' );
+			?>
+			<h1 class="blog-index__title"><?php echo esc_html( $blog_title ); ?></h1>
 		</header>
 
 		<?php if ( have_posts() ) : ?>
@@ -21,7 +27,7 @@ global $wp_query;
 			<?php while ( have_posts() ) : the_post();
 				$cats     = get_the_category();
 				$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
-				include get_template_directory() . '/template-parts/post-card.php';
+				get_template_part( 'template-parts/post-card', null, [ 'cats' => $cats, 'cat_name' => $cat_name ] );
 			endwhile; ?>
 		</ul>
 

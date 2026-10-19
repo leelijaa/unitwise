@@ -76,7 +76,7 @@ function unitwise_boot(): void {
 
 	add_action( 'init', function() {
 		if ( function_exists( 'wp_sitemaps_get_server' ) ) {
-			wp_sitemaps_get_server()->get_registry()->add_provider(
+			wp_sitemaps_get_server()->registry->add_provider(
 				'unitwise_converters',
 				new Unitwise_Sitemap_Provider()
 			);

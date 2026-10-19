@@ -21,8 +21,8 @@ $to_plural   = Unitwise_Registry::get_label( $to,   true );
 $formula     = $engine->get_formula( $from, $to );
 $example     = $engine->get_worked_example( 1, $from, $to );
 ?>
-<ol class="howto-steps">
-	<li class="howto-step">
+<ol class="howto-steps" role="list">
+	<li class="howto-step" aria-label="<?php esc_attr_e( 'Step 1', 'unitwise-theme' ); ?>">
 		<span class="howto-step__num" aria-hidden="true">1</span>
 		<div class="howto-step__body">
 			<strong><?php esc_html_e( 'Enter the value', 'unitwise-theme' ); ?></strong>
@@ -37,14 +37,14 @@ $example     = $engine->get_worked_example( 1, $from, $to );
 			</p>
 		</div>
 	</li>
-	<li class="howto-step">
+	<li class="howto-step" aria-label="<?php esc_attr_e( 'Step 2', 'unitwise-theme' ); ?>">
 		<span class="howto-step__num" aria-hidden="true">2</span>
 		<div class="howto-step__body">
 			<strong><?php esc_html_e( 'Apply the formula', 'unitwise-theme' ); ?></strong>
 			<p><code><?php echo esc_html( $formula ); ?></code></p>
 		</div>
 	</li>
-	<li class="howto-step">
+	<li class="howto-step" aria-label="<?php esc_attr_e( 'Step 3', 'unitwise-theme' ); ?>">
 		<span class="howto-step__num" aria-hidden="true">3</span>
 		<div class="howto-step__body">
 			<strong><?php esc_html_e( 'Read the result', 'unitwise-theme' ); ?></strong>

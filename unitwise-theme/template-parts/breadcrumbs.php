@@ -51,7 +51,9 @@ if ( is_array( $passed ) && ! empty( $passed ) ) {
 		}
 		$crumbs[] = [ 'label' => get_the_title(), 'url' => '' ];
 	} elseif ( is_home() || is_category() ) {
-		$crumbs[] = [ 'label' => __( 'Blog', 'unitwise-theme' ), 'url' => '' ];
+		$blog_page_id = (int) get_option( 'page_for_posts' );
+		$blog_label   = $blog_page_id ? get_the_title( $blog_page_id ) : __( 'Blog', 'unitwise-theme' );
+		$crumbs[] = [ 'label' => $blog_label, 'url' => '' ];
 	} elseif ( is_search() ) {
 		$crumbs[] = [ 'label' => sprintf( __( 'Search: %s', 'unitwise-theme' ), get_search_query() ), 'url' => '' ];
 	} elseif ( is_404() ) {
@@ -78,7 +80,7 @@ foreach ( $crumbs as $pos => $crumb ) {
 		'name'     => $crumb['label'],
 	];
 	if ( ! empty( $crumb['url'] ) ) {
-		$ld_item['item'] = $crumb['url'];
+		$ld_item['item'] = [ '@id' => $crumb['url'] ];
 	}
 	$ld_items[] = $ld_item;
 }
@@ -93,45 +95,37 @@ $home_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 ?>
 <div class="breadcrumb-bar">
 	<nav class="container" aria-label="<?php esc_attr_e( 'Breadcrumb', 'unitwise-theme' ); ?>">
-		<ol class="breadcrumb-bar__list"<?php if ( ! $has_own_schema ) { echo ' itemscope itemtype="https://schema.org/BreadcrumbList"'; } ?>>
+		<ol class="breadcrumb-bar__list">
 			<?php foreach ( $crumbs as $pos => $crumb ) :
 				$is_last  = ( $pos === count( $crumbs ) - 1 );
 				$is_home  = ! empty( $crumb['home'] );
 			?>
-			<li
-				class="breadcrumb-bar__item"
-				<?php if ( ! $has_own_schema ) { echo 'itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"'; } ?>
-			>
+			<li class="breadcrumb-bar__item">
 				<?php if ( $pos > 0 ) : ?>
 					<span class="breadcrumb-bar__sep" aria-hidden="true">&#8250;</span>
 				<?php endif; ?>
 
 				<?php if ( ! empty( $crumb['url'] ) && ! $is_last ) : ?>
 					<a class="breadcrumb-bar__link<?php echo $is_home ? ' breadcrumb-bar__link--home' : ''; ?>"
-					   href="<?php echo esc_url( $crumb['url'] ); ?>"
-					   <?php if ( ! $has_own_schema ) { echo 'itemprop="item"'; } ?>>
+					   href="<?php echo esc_url( $crumb['url'] ); ?>">
 						<?php if ( $is_home ) : ?>
 							<?php echo $home_icon; // phpcs:ignore WordPress.Security.EscapeOutput ?>
-							<span class="screen-reader-text"<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span class="screen-reader-text"><?php echo esc_html( $crumb['label'] ); ?></span>
 						<?php else : ?>
-							<span<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span><?php echo esc_html( $crumb['label'] ); ?></span>
 						<?php endif; ?>
 					</a>
 				<?php else : ?>
 					<?php if ( $is_home ) : ?>
 						<span class="breadcrumb-bar__link breadcrumb-bar__link--home breadcrumb-bar__current" aria-current="page">
 							<?php echo $home_icon; // phpcs:ignore WordPress.Security.EscapeOutput ?>
-							<span class="screen-reader-text"<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>><?php echo esc_html( $crumb['label'] ); ?></span>
+							<span class="screen-reader-text"><?php echo esc_html( $crumb['label'] ); ?></span>
 						</span>
 					<?php else : ?>
-						<span class="breadcrumb-bar__current" aria-current="page"<?php if ( ! $has_own_schema ) { echo ' itemprop="name"'; } ?>>
+						<span class="breadcrumb-bar__current" aria-current="page">
 							<?php echo esc_html( $crumb['label'] ); ?>
 						</span>
 					<?php endif; ?>
-				<?php endif; ?>
-
-				<?php if ( ! $has_own_schema ) : ?>
-				<meta itemprop="position" content="<?php echo esc_attr( $pos + 1 ); ?>">
 				<?php endif; ?>
 			</li>
 			<?php endforeach; ?>
@@ -139,7 +133,7 @@ $home_icon = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" vie
 	</nav>
 </div>
 <?php if ( ! $has_own_schema ) : ?>
-<script type="application/ld+json"><?php echo wp_json_encode( $ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ); ?></script>
+<script type="application/ld+json"><?php echo wp_json_encode( $ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ); ?></script>
 <?php endif; ?>
 <?php
 // Clean up the global after rendering

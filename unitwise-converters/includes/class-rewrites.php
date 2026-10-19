@@ -33,7 +33,7 @@ class Unitwise_Rewrites {
 
 			// Converter page: /weight/grams-to-kilograms/
 			add_rewrite_rule(
-				'^' . $escaped . '/([a-z_]+)-to-([a-z_]+)/?$',
+				'^' . $escaped . '/([a-z_-]+)-to-([a-z_-]+)/?$',
 				'index.php?unitwise_cat=' . $cat_slug . '&unitwise_from=$matches[1]&unitwise_to=$matches[2]',
 				'top'
 			);
@@ -84,6 +84,7 @@ class Unitwise_Rewrites {
 		$query = new WP_Query( [
 			'post_type'      => 'unitwise_converter',
 			'posts_per_page' => 1,
+			'no_found_rows'  => true,
 			'meta_query'     => [
 				'relation' => 'AND',
 				[ 'key' => 'unitwise_from_unit', 'value' => $from ],
@@ -137,6 +138,7 @@ class Unitwise_Rewrites {
 			$posts_query = new WP_Query( [
 				'post_type'      => 'unitwise_converter',
 				'posts_per_page' => -1,
+				'no_found_rows'  => true,
 				'tax_query'      => [
 					[
 						'taxonomy' => 'unitwise_category',
@@ -190,7 +192,7 @@ class Unitwise_Rewrites {
 	 */
 	public static function handle_legacy_redirects(): void {
 		// Redirect ?p=123 for converter posts to the silo URL
-		if ( ! empty( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! is_singular() && ! empty( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$post = get_post( (int) $_GET['p'] ); // phpcs:ignore WordPress.Security.NonceVerification
 			if ( $post instanceof WP_Post && 'unitwise_converter' === $post->post_type ) {
 				wp_redirect( get_permalink( $post ), 301 );
@@ -203,7 +205,8 @@ class Unitwise_Rewrites {
 			$term = get_queried_object();
 			if ( $term instanceof WP_Term ) {
 				$clean = home_url( '/' . $term->slug . '/' );
-				if ( ! str_contains( $_SERVER['REQUEST_URI'] ?? '', '/' . $term->slug . '/' ) ) {
+				$request_path = wp_parse_url( esc_url_raw( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
+			if ( ! str_contains( (string) $request_path, '/' . $term->slug . '/' ) ) {
 					wp_redirect( $clean, 301 );
 					exit;
 				}

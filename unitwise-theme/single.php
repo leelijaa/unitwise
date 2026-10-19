@@ -60,7 +60,7 @@ $read_min = max( 1, (int) ceil( $words / 200 ) );
 
 			<?php if ( has_post_thumbnail() ) : ?>
 			<div class="post-hero__thumb">
-				<?php the_post_thumbnail( 'large', [ 'loading' => 'eager' ] ); ?>
+				<?php the_post_thumbnail( 'large', [ 'loading' => 'eager', 'fetchpriority' => 'high' ] ); ?>
 			</div>
 			<?php endif; ?>
 
@@ -84,8 +84,6 @@ $read_min = max( 1, (int) ceil( $words / 200 ) );
 						<span class="nav-label"><?php esc_html_e( '← Previous', 'unitwise-theme' ); ?></span>
 						<?php echo esc_html( get_the_title( $prev ) ); ?>
 					</a>
-					<?php else : ?>
-					<span></span>
 					<?php endif; ?>
 					<?php if ( $next ) : ?>
 					<a href="<?php echo esc_url( get_permalink( $next ) ); ?>" class="nav-next" rel="next">

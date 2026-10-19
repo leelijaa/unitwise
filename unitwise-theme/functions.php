@@ -51,8 +51,25 @@ function unitwise_theme_setup(): void {
 add_action( 'wp_head', 'unitwise_theme_preconnect', 1 );
 
 function unitwise_theme_preconnect(): void {
+	// Only emit preconnect hints when the font stylesheet is actually enqueued
+	if ( ! wp_style_is( 'unitwise-fonts', 'enqueued' ) ) {
+		return;
+	}
 	echo "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n";
 	echo "<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n";
+}
+
+// -------------------------------------------------------------------------
+// Async Google Fonts — prevent render-blocking
+
+add_filter( 'style_loader_tag', 'unitwise_theme_async_fonts', 10, 2 );
+
+function unitwise_theme_async_fonts( string $tag, string $handle ): string {
+	if ( 'unitwise-fonts' !== $handle ) {
+		return $tag;
+	}
+	$async = str_replace( "rel='stylesheet'", "rel='preload' as='style' onload=\"this.onload=null;this.rel='stylesheet'\"", $tag );
+	return $async . "<noscript>{$tag}</noscript>\n";
 }
 
 // -------------------------------------------------------------------------
@@ -62,7 +79,9 @@ add_action( 'wp_head',          'unitwise_theme_thin_archive_noindex', 1 );
 add_action( 'template_redirect', 'unitwise_theme_redirect_attachments' );
 
 function unitwise_theme_thin_archive_noindex(): void {
-	if ( is_date() || is_tag() || is_category() ) {
+	if ( is_date() || is_tag() || ( is_category() && ! is_tax( 'unitwise_category' ) )
+		|| ( is_paged() && ( is_home() || is_archive() ) )
+	) {
 		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
 	}
 }
@@ -70,7 +89,9 @@ function unitwise_theme_thin_archive_noindex(): void {
 function unitwise_theme_redirect_attachments(): void {
 	if ( is_attachment() ) {
 		$parent = wp_get_post_parent_id( get_the_ID() );
-		$target = $parent ? get_permalink( $parent ) : home_url( '/' );
+		$target = ( $parent && 'publish' === get_post_status( $parent ) )
+			? get_permalink( $parent )
+			: home_url( '/' );
 		wp_redirect( esc_url_raw( $target ), 301 );
 		exit;
 	}
@@ -189,7 +210,9 @@ function unitwise_theme_seo_tags(): void {
 	} elseif ( is_singular() ) {
 		$og_type = 'article';
 		$title   = get_the_title() . ' | ' . get_bloginfo( 'name' );
-		$desc    = has_excerpt() ? wp_strip_all_tags( get_the_excerpt() ) : wp_trim_words( get_the_content(), 20 );
+		$desc    = has_excerpt()
+			? wp_strip_all_tags( get_the_excerpt() )
+			: wp_trim_words( wp_strip_all_tags( apply_filters( 'the_content', get_the_content() ) ), 20 );
 		$url     = get_permalink();
 
 	} elseif ( is_home() ) {
@@ -233,14 +256,34 @@ function unitwise_theme_seo_tags(): void {
 	echo "<meta property=\"og:url\" content=\"{$url}\">\n";
 	echo "<meta property=\"og:type\" content=\"" . esc_attr( $og_type ) . "\">\n";
 	echo "<meta property=\"og:site_name\" content=\"{$site}\">\n";
+	echo "<meta property=\"og:locale\" content=\"" . esc_attr( str_replace( '-', '_', get_locale() ) ) . "\">\n";
 	if ( $og_image ) {
 		echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		echo "<meta property=\"og:image:width\" content=\"1200\">\n";
+		echo "<meta property=\"og:image:height\" content=\"630\">\n";
+		echo "<meta property=\"og:image:alt\" content=\"{$title}\">\n";
 	}
-	echo "<meta name=\"twitter:card\" content=\"summary" . ( $og_image ? '_large_image' : '' ) . "\">\n";
+	if ( 'article' === $og_type ) {
+		echo "<meta property=\"article:published_time\" content=\"" . esc_attr( get_the_date( 'c' ) ) . "\">\n";
+		echo "<meta property=\"article:modified_time\" content=\"" . esc_attr( get_the_modified_date( 'c' ) ) . "\">\n";
+		$author_name = get_the_author_meta( 'display_name' );
+		if ( $author_name ) {
+			echo "<meta property=\"article:author\" content=\"" . esc_attr( $author_name ) . "\">\n";
+		}
+	}
+	$twitter_url = get_theme_mod( 'footer_social_twitter', '' );
+	$tw_card     = 'summary' . ( $og_image ? '_large_image' : '' );
+	echo "<meta name=\"twitter:card\" content=\"" . esc_attr( $tw_card ) . "\">\n";
+	if ( $twitter_url ) {
+		preg_match( '#(?:twitter|x)\.com/([^/?\s]+)#i', $twitter_url, $m );
+		$tw_site = isset( $m[1] ) ? '@' . $m[1] : $twitter_url;
+		echo "<meta name=\"twitter:site\" content=\"" . esc_attr( $tw_site ) . "\">\n";
+	}
 	echo "<meta name=\"twitter:title\" content=\"{$title}\">\n";
 	echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
 	if ( $og_image ) {
 		echo "<meta name=\"twitter:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		echo "<meta name=\"twitter:image:alt\" content=\"{$title}\">\n";
 	}
 }
 
@@ -266,7 +309,7 @@ function unitwise_load_more_posts(): void {
 		$query->the_post();
 		$cats     = get_the_category();
 		$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
-		include get_template_directory() . '/template-parts/post-card.php';
+		get_template_part( 'template-parts/post-card', null, [ 'cats' => $cats, 'cat_name' => $cat_name ] );
 	}
 	wp_reset_postdata();
 	$html = ob_get_clean();
@@ -310,6 +353,29 @@ function unitwise_theme_customizer( WP_Customize_Manager $wp_customize ): void {
 		'label'   => __( 'Site Logo (for JSON-LD Organization schema)', 'unitwise-theme' ),
 		'section' => 'title_tagline',
 	] ) );
+
+	// Social links section
+	$wp_customize->add_section( 'unitwise_social', [
+		'title'    => __( 'Social Links', 'unitwise-theme' ),
+		'priority' => 120,
+	] );
+
+	$social_fields = [
+		'footer_social_twitter'  => __( 'Twitter / X URL', 'unitwise-theme' ),
+		'footer_social_youtube'  => __( 'YouTube URL', 'unitwise-theme' ),
+		'footer_social_linkedin' => __( 'LinkedIn URL', 'unitwise-theme' ),
+		'footer_contact_email'   => __( 'Contact Email', 'unitwise-theme' ),
+	];
+
+	foreach ( $social_fields as $key => $label ) {
+		$sanitize = ( 'footer_contact_email' === $key ) ? 'sanitize_email' : 'esc_url_raw';
+		$wp_customize->add_setting( $key, [ 'default' => '', 'sanitize_callback' => $sanitize ] );
+		$wp_customize->add_control( $key, [
+			'label'   => $label,
+			'section' => 'unitwise_social',
+			'type'    => 'url',
+		] );
+	}
 }
 
 // -------------------------------------------------------------------------
@@ -335,6 +401,15 @@ add_filter( 'robots_txt', 'unitwise_theme_robots_txt', 10, 2 );
 
 function unitwise_theme_robots_txt( string $output, bool $public ): string {
 	if ( $public ) {
+		$output .= "\nDisallow: /?s=\n";
+		$output .= "Disallow: /?p=\n";
+		$output .= "Disallow: /?v=\n";
+		$output .= "Disallow: /?post_type=unitwise_converter\n";
+		$output .= "Disallow: /?author=\n";
+		$output .= "Disallow: /feed/\n";
+		$output .= "Disallow: /*/feed/\n";
+		$output .= "Disallow: /?unitwise_cat=\n";
+		$output .= "Disallow: /?unitwise_from=\n";
 		$output .= "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
 	}
 	return $output;
@@ -357,6 +432,9 @@ function unitwise_theme_document_title( array $title ): array {
 	} elseif ( $cat && class_exists( 'Unitwise_Registry' ) ) {
 		$cat_info       = Unitwise_Registry::get_category( $cat );
 		$title['title'] = ( $cat_info['name'] ?? ucfirst( $cat ) ) . ' Converters';
+	} elseif ( is_home() ) {
+		$page_for_posts = (int) get_option( 'page_for_posts' );
+		$title['title'] = $page_for_posts ? get_the_title( $page_for_posts ) : __( 'Blog', 'unitwise-theme' );
 	}
 
 	return $title;

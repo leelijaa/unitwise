@@ -73,10 +73,11 @@ if ( $valid ) {
 
 	// Related converters (siblings in same category, plus reverse)
 	$siblings_query = new WP_Query( [
-		'post_type'      => 'unitwise_converter',
-		'posts_per_page' => 10,
-		'post__not_in'   => $post_id ? [ $post_id ] : [],
-		'meta_query'     => [
+		'post_type'              => 'unitwise_converter',
+		'posts_per_page'         => 10,
+		'no_found_rows'          => true,
+		'post__not_in'           => $post_id ? [ $post_id ] : [],
+		'meta_query'             => [
 			[ 'key' => 'unitwise_from_unit', 'value' => $from ],
 		],
 		'tax_query' => [
@@ -124,9 +125,9 @@ if ( $valid ) {
 				</header>
 
 				<?php /* 3. Live converter tool */ ?>
-				<section class="converter-section" aria-label="<?php esc_attr_e( 'Converter tool', 'unitwise-theme' ); ?>">
+				<div class="converter-section">
 					<?php echo do_blocks( '<!-- wp:unitwise/converter /-->' ); ?>
-				</section>
+				</div>
 
 				<?php /* 4. Formula */ ?>
 				<section class="converter-section" aria-label="<?php esc_attr_e( 'Formula', 'unitwise-theme' ); ?>">
@@ -185,14 +186,14 @@ if ( $valid ) {
 				<?php endif; ?>
 
 				<?php /* 9. Related converters */ ?>
-				<section class="converter-section">
+				<div class="converter-section">
 					<?php get_template_part( 'template-parts/converter-related', null, [
 						'from'           => $from,
 						'to'             => $to,
 						'cat'            => $cat,
 						'siblings_query' => $siblings_query ?? null,
 					] ); ?>
-				</section>
+				</div>
 
 			</article>
 

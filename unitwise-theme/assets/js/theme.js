@@ -27,14 +27,14 @@
 			}
 			mobileNav.classList.toggle('is-open', open);
 			hamburger.setAttribute('aria-expanded', String(open));
-			hamburger.textContent = open ? '✕' : '☰';
+			hamburger.querySelector('[aria-hidden]').textContent = open ? '✕' : '☰';
 		});
 		document.addEventListener('keydown', (e) => {
 			if (e.key === 'Escape' && !mobileNav.hasAttribute('hidden')) {
 				mobileNav.setAttribute('hidden', '');
 				mobileNav.classList.remove('is-open');
 				hamburger.setAttribute('aria-expanded', 'false');
-				hamburger.textContent = '☰';
+				hamburger.querySelector('[aria-hidden]').textContent = '☰';
 				hamburger.focus();
 			}
 		});
@@ -54,7 +54,7 @@
 	}
 	function applyTheme (t) {
 		root.setAttribute('data-theme', t);
-		if (themeBtn) themeBtn.textContent = t === 'dark' ? '☀' : '🌙';
+		if (themeBtn) themeBtn.querySelector('[aria-hidden]').textContent = t === 'dark' ? '☀' : '🌙';
 	}
 
 	const stored = getStoredTheme();

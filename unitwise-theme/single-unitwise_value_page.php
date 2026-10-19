@@ -67,9 +67,9 @@ $GLOBALS['uw_crumbs'] = [
 		<h1 class="vp-hero__title">
 			<?php echo esc_html( "{$v_str} {$from_l} to {$to_l_p}" ); ?>
 		</h1>
-		<div class="vp-hero__answer">
+		<div class="vp-hero__answer" aria-label="<?php echo esc_attr( "{$v_str} {$from_l} equals {$result} {$to_l_p}" ); ?>">
 			<span class="vp-hero__from"><?php echo esc_html( "{$v_str} {$from_l}" ); ?></span>
-			<span class="vp-hero__eq" aria-hidden="true">=</span>
+			<span class="vp-hero__eq">=</span>
 			<strong class="vp-hero__to" id="uw-vp-hero-result"><?php echo esc_html( $result ); ?></strong>
 			<span class="vp-hero__unit"><?php echo esc_html( $to_l_p ); ?></span>
 		</div>
@@ -96,7 +96,7 @@ $GLOBALS['uw_crumbs'] = [
 				<input type="number" id="uw-vp-input"
 				       class="uw-vp-converter__input"
 				       value="<?php echo esc_attr( (string) $v_str ); ?>"
-				       step="any" min="0" autocomplete="off">
+				       step="any" autocomplete="off">
 			</div>
 			<div class="uw-vp-converter__arrow" aria-hidden="true">→</div>
 			<div class="uw-vp-converter__field">
@@ -269,6 +269,11 @@ $GLOBALS['uw_crumbs'] = [
 
 	<!-- FAQ -->
 	<?php
+	$faq_heading_id = 'vp-faq-heading';
+	?>
+	<section class="vp-section" aria-labelledby="<?php echo esc_attr( $faq_heading_id ); ?>">
+		<h2 id="<?php echo esc_attr( $faq_heading_id ); ?>" class="vp-section__title"><?php esc_html_e( 'Frequently Asked Questions', 'unitwise-theme' ); ?></h2>
+	<?php
 	$faqs = [
 		[
 			'q' => sprintf(
@@ -309,6 +314,7 @@ $GLOBALS['uw_crumbs'] = [
 	];
 	get_template_part( 'template-parts/faq', null, [ 'faqs' => $faqs ] );
 	?>
+	</section><!-- /.vp-section faq -->
 
 </div><!-- .container -->
 </main><!-- .vp-page -->
@@ -323,6 +329,17 @@ $GLOBALS['uw_crumbs'] = [
 	var fromKey = <?php echo wp_json_encode( $from ); ?>;
 	var toKey   = <?php echo wp_json_encode( $to ); ?>;
 
+	// Reuse the shared formatter exposed by view.js; inline fallback for pages
+	// where the converter block is not present and view.js hasn't run.
+	var formatResult = ( window.UnitWise && window.UnitWise.formatResult )
+		|| function( value, dp ) {
+			if ( value === 0 ) return '0';
+			var abs = Math.abs( value );
+			if ( abs < 0.0001 || abs >= 10000000 ) { return value.toExponential( 6 ); }
+			var str = value.toFixed( dp );
+			return str.replace( /(\.\d*?)0+$/, '$1' ).replace( /\.$/, '' );
+		};
+
 	function recalc() {
 		if ( !window.unitwiseData || !window.unitwiseData.factors ) { return; }
 		var v = parseFloat( input.value );
@@ -334,9 +351,8 @@ $GLOBALS['uw_crumbs'] = [
 		var f   = window.unitwiseData.factors;
 		var dec = window.unitwiseData.decimals || 6;
 		var res = v * f[fromKey] / f[toKey];
-		var fmt = res.toLocaleString( 'en-US', { maximumFractionDigits: dec, minimumFractionDigits: 0 } );
-		output.textContent = fmt;
-		if ( heroOut ) { heroOut.textContent = fmt; }
+		output.textContent = formatResult( res, dec );
+		if ( heroOut ) { heroOut.textContent = formatResult( res, dec ); }
 	}
 
 	if ( input ) { input.addEventListener( 'input', recalc ); }

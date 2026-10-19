@@ -23,8 +23,7 @@
     }
   },
   "supports": {
-    "html": false,
-    "interactivity": true
+    "html": false
   },
   "render": "file:./render.php",
   "viewScript": "file:./view.js",

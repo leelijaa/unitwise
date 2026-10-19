@@ -1,8 +1,9 @@
 <?php
 /**
  * Post card partial — used by home.php and the AJAX load-more handler.
- * Expects: current post in the loop, $cats and $cat_name set by the caller.
  */
+$cats     = $args['cats']     ?? [];
+$cat_name = $args['cat_name'] ?? '';
 ?>
 <li class="post-card">
 	<div class="post-card__thumb-wrap">

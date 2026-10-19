@@ -3,6 +3,7 @@
 <head>
 <meta charset="<?php bloginfo( 'charset' ); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var t=localStorage.getItem('uw-theme');if(t){document.documentElement.setAttribute('data-theme',t);}else if(window.matchMedia('(prefers-color-scheme:dark)').matches){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();</script>
 <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
@@ -12,7 +13,7 @@
 	<?php esc_html_e( 'Skip to content', 'unitwise-theme' ); ?>
 </a>
 
-<header class="site-header" role="banner">
+<header class="site-header">
 	<div class="container site-header__inner">
 
 		<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="site-header__logo" rel="home" aria-label="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?> — Home">
@@ -31,20 +32,14 @@
 					'fallback_cb'    => false,
 				] );
 			} else {
-				?>
-				<ul class="unitwise-fallback-nav">
-					<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/weight/' ) ); ?>"><?php esc_html_e( 'Weight', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>"><?php esc_html_e( 'Blog', 'unitwise-theme' ); ?></a></li>
-				</ul>
-				<?php
+				unitwise_fallback_nav();
 			}
 			?>
 		</nav>
 
 		<div class="site-header__actions">
-			<button class="theme-toggle-btn" aria-label="<?php esc_attr_e( 'Toggle dark mode', 'unitwise-theme' ); ?>">🌙</button>
-			<button class="hamburger-btn" aria-label="<?php esc_attr_e( 'Open menu', 'unitwise-theme' ); ?>" aria-expanded="false" aria-controls="mobile-nav">☰</button>
+			<button class="theme-toggle-btn" aria-label="<?php esc_attr_e( 'Toggle dark mode', 'unitwise-theme' ); ?>"><span aria-hidden="true">🌙</span></button>
+			<button class="hamburger-btn" aria-label="<?php esc_attr_e( 'Open menu', 'unitwise-theme' ); ?>" aria-expanded="false" aria-controls="mobile-nav"><span aria-hidden="true">☰</span></button>
 		</div>
 
 	</div>
