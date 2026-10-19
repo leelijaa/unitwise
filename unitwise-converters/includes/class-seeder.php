@@ -19,6 +19,8 @@ class Unitwise_Seeder {
 		add_action( 'admin_menu', [ __CLASS__, 'add_admin_page' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_seed_action' ] );
 		add_action( 'admin_init', [ __CLASS__, 'handle_blog_seed_action' ] );
+		add_action( 'admin_init', [ __CLASS__, 'handle_homepage_seed_action' ] );
+		add_action( 'admin_init', [ __CLASS__, 'auto_seed_homepage' ] );
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			WP_CLI::add_command( 'unitwise seed',      [ __CLASS__, 'cli_seed' ] );
@@ -60,6 +62,18 @@ class Unitwise_Seeder {
 				<?php wp_nonce_field( 'unitwise_seed', 'unitwise_seed_nonce' ); ?>
 				<input type="hidden" name="action" value="unitwise_seed">
 				<?php submit_button( __( 'Seed Converters', 'unitwise-converters' ) ); ?>
+			</form>
+
+			<hr>
+
+			<h2><?php esc_html_e( 'Homepage Content', 'unitwise-converters' ); ?></h2>
+			<p>
+				<?php esc_html_e( 'Populates the static front page with the UnitWise hub blocks (hero, category grid, popular converters, recent posts, newsletter). Also runs automatically whenever the front page has no content.', 'unitwise-converters' ); ?>
+			</p>
+			<form method="post">
+				<?php wp_nonce_field( 'unitwise_seed_homepage', 'unitwise_seed_homepage_nonce' ); ?>
+				<input type="hidden" name="action" value="unitwise_seed_homepage">
+				<?php submit_button( __( 'Seed Homepage Blocks', 'unitwise-converters' ) ); ?>
 			</form>
 
 			<hr>
@@ -131,6 +145,74 @@ class Unitwise_Seeder {
 				)
 			);
 		} );
+	}
+
+	// -------------------------------------------------------------------------
+	// Homepage seeder
+
+	public static function handle_homepage_seed_action(): void {
+		if (
+			empty( $_POST['action'] ) ||
+			'unitwise_seed_homepage' !== $_POST['action'] ||
+			! isset( $_POST['unitwise_seed_homepage_nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['unitwise_seed_homepage_nonce'] ) ), 'unitwise_seed_homepage' ) ||
+			! current_user_can( 'manage_options' )
+		) {
+			return;
+		}
+
+		$seeded = self::seed_homepage();
+		add_action( 'admin_notices', static function () use ( $seeded ): void {
+			$msg = $seeded
+				? __( 'Homepage blocks seeded successfully.', 'unitwise-converters' )
+				: __( 'Homepage could not be seeded — no static front page found.', 'unitwise-converters' );
+			printf( '<div class="notice notice-%s is-dismissible"><p>%s</p></div>', $seeded ? 'success' : 'error', esc_html( $msg ) );
+		} );
+	}
+
+	/**
+	 * Auto-seeds the front page with hub blocks when its post_content is empty.
+	 * Runs on every admin_init so the page is never left blank.
+	 */
+	public static function auto_seed_homepage(): void {
+		$front_id = (int) get_option( 'page_on_front' );
+		if ( ! $front_id ) {
+			return;
+		}
+		$content = get_post_field( 'post_content', $front_id );
+		if ( '' === trim( (string) $content ) ) {
+			self::seed_homepage();
+		}
+	}
+
+	/**
+	 * Sets the static front page post_content to the serialized hub block markup.
+	 * Idempotent — overwrites whatever is there.
+	 *
+	 * @return bool True on success, false if no front page is configured.
+	 */
+	public static function seed_homepage(): bool {
+		$front_id = (int) get_option( 'page_on_front' );
+		if ( ! $front_id ) {
+			return false;
+		}
+
+		$blocks = '<!-- wp:unitwise/hub-hero {"badge":"Free & No Sign-up Required","headline":"Free Online","accentText":"Unit Converters","lead":"Instant, accurate conversions for weight, mass, and more. Beautifully simple, completely free."} /-->'
+			. "\n\n"
+			. '<!-- wp:unitwise/hub-category-grid {"heading":"Browse by Category","subheading":"Pick a measurement type to see all available converters."} /-->'
+			. "\n\n"
+			. '<!-- wp:unitwise/popular-converters {"category":"weight","limit":12} /-->'
+			. "\n\n"
+			. '<!-- wp:unitwise/recent-posts {"heading":"From the Blog","subheading":"Tips, guides, and insights about unit conversion.","count":3} /-->'
+			. "\n\n"
+			. '<!-- wp:unitwise/hub-newsletter {"heading":"Stay in the Loop","subtext":"Get notified when we add new converters, guides, and tools. No spam, unsubscribe any time."} /-->';
+
+		wp_update_post( [
+			'ID'           => $front_id,
+			'post_content' => $blocks,
+		] );
+
+		return true;
 	}
 
 	// -------------------------------------------------------------------------
