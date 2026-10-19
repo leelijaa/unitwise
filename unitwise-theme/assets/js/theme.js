@@ -103,6 +103,14 @@
 	   Load More — blog index (pushes ?page=N into the URL for shareability)
 	----------------------------------------------------------------------- */
 	const loadMoreBtn = document.querySelector('.btn--load-more');
+	if (loadMoreBtn) {
+		window.addEventListener('popstate', (e) => {
+			const p = (e.state && e.state.page)
+				? e.state.page
+				: parseInt(new URLSearchParams(window.location.search).get('paged') || '1', 10);
+			loadMoreBtn.dataset.page = String(p);
+		});
+	}
 	if (loadMoreBtn && typeof uwBlog !== 'undefined') {
 		const grid = document.querySelector('.post-grid');
 

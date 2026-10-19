@@ -92,7 +92,7 @@ function unitwise_theme_redirect_attachments(): void {
 		$target = ( $parent && 'publish' === get_post_status( $parent ) )
 			? get_permalink( $parent )
 			: home_url( '/' );
-		wp_redirect( esc_url_raw( $target ), 301 );
+		wp_safe_redirect( esc_url_raw( $target ), 301 );
 		exit;
 	}
 }
@@ -211,8 +211,10 @@ function unitwise_theme_seo_tags(): void {
 		$desc     = "Free online {$cat_name} unit converters. Convert between all common units instantly.";
 		$url      = home_url( "/{$cat}/" );
 
-	} elseif ( is_singular() ) {
+	} elseif ( is_singular( 'post' ) ) {
 		$og_type = 'article';
+		$title   = get_the_title() . ' | ' . get_bloginfo( 'name' );
+	} elseif ( is_singular() ) {
 		$title   = get_the_title() . ' | ' . get_bloginfo( 'name' );
 		$desc    = has_excerpt()
 			? wp_strip_all_tags( get_the_excerpt() )
@@ -335,7 +337,7 @@ add_action( 'template_redirect', 'unitwise_theme_disable_author_archives' );
 
 function unitwise_theme_disable_author_archives(): void {
 	if ( is_author() ) {
-		wp_redirect( home_url( '/' ), 301 );
+		wp_safe_redirect( home_url( '/' ), 301 );
 		exit;
 	}
 }
@@ -441,6 +443,9 @@ function unitwise_theme_document_title( array $title ): array {
 	} elseif ( is_home() ) {
 		$page_for_posts = (int) get_option( 'page_for_posts' );
 		$title['title'] = $page_for_posts ? get_the_title( $page_for_posts ) : __( 'Blog', 'unitwise-theme' );
+	} elseif ( is_front_page() ) {
+		$title['title'] = get_bloginfo( 'name' ) . ' — Free Online Unit Converters';
+		unset( $title['tagline'] );
 	}
 
 	return $title;

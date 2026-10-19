@@ -55,7 +55,7 @@ $all_siblings = $siblings_query ? $siblings_query->posts : [];
 		<ul class="unitwise-related-list">
 			<li>
 				<a href="<?php echo esc_url( $reverse_url ); ?>">
-					<?php echo esc_html( $reverse_lbl ) . ' Converter'; ?>
+					<?php printf( esc_html__( '%s Converter', 'unitwise-theme' ), esc_html( $reverse_lbl ) ); ?>
 				</a>
 			</li>
 		</ul>

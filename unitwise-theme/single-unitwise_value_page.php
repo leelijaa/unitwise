@@ -17,6 +17,7 @@ $to    = get_post_meta( $id, '_uw_vp_to',   true );
 $cat   = get_post_meta( $id, '_uw_vp_cat',  true ) ?: 'weight';
 
 if ( ! $from || ! $to || ! class_exists( 'Unitwise_Engine' ) ) {
+	echo '<main id="main-content"><div class="container"><p>' . esc_html__( 'Converter data unavailable.', 'unitwise-theme' ) . '</p></div></main>';
 	get_footer();
 	return;
 }
@@ -355,7 +356,10 @@ $GLOBALS['uw_crumbs'] = [
 		if ( heroOut ) { heroOut.textContent = formatResult( res, dec ); }
 	}
 
-	if ( input ) { input.addEventListener( 'input', recalc ); }
+	if ( input ) {
+		input.addEventListener( 'input', recalc );
+		window.addEventListener( 'load', recalc );
+	}
 }());
 </script>
 

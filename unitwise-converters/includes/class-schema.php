@@ -365,7 +365,9 @@ class Unitwise_Schema {
 			'isPartOf'          => [ '@id' => home_url( '/#website' ) ],
 			'author'            => [
 				'@type' => 'Person',
+				'@id'   => get_author_posts_url( get_post_field( 'post_author', $post_id ) ) . '#author',
 				'name'  => $author_name,
+				'url'   => get_author_posts_url( get_post_field( 'post_author', $post_id ) ),
 			],
 			'publisher'         => [ '@id' => home_url( '/#organization' ) ],
 			'inLanguage'        => get_bloginfo( 'language' ),
@@ -388,6 +390,13 @@ class Unitwise_Schema {
 		}
 		$bc[] = [ 'name' => $title, 'url' => $url ];
 
+		$org = [
+			'@type' => 'Organization',
+			'@id'   => home_url( '/#organization' ),
+			'name'  => get_bloginfo( 'name' ),
+			'url'   => home_url( '/' ),
+		];
+
 		$graph = [
 			[
 				'@type'      => 'WebPage',
@@ -399,6 +408,7 @@ class Unitwise_Schema {
 			],
 			$article,
 			self::breadcrumb( $bc ),
+			$org,
 		];
 
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );

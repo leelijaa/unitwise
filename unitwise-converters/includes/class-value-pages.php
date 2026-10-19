@@ -691,11 +691,12 @@ class Unitwise_Value_Pages {
 		if ( ! $id || '1' !== get_post_meta( $id, self::META_FLAG, true ) ) {
 			return;
 		}
+		$css_path = UNITWISE_DIR . 'assets/css/converter.css';
 		wp_enqueue_style(
 			'unitwise-converter',
 			UNITWISE_URL . 'assets/css/converter.css',
 			[],
-			UNITWISE_VERSION
+			file_exists( $css_path ) ? (string) filemtime( $css_path ) : UNITWISE_VERSION
 		);
 		$cat = sanitize_key( get_post_meta( $id, self::META_CAT, true ) ?: 'weight' );
 		wp_register_script( 'unitwise-vp-data', false, [], UNITWISE_VERSION, [ 'in_footer' => true ] );
@@ -970,14 +971,12 @@ class Unitwise_Value_Pages {
 
 	public static function value_page_url( float $value, string $from_slug, string $to_slug ): ?string {
 		$slug = self::build_slug( $value, $from_slug, $to_slug );
-		$p    = get_page_by_path( $slug, OBJECT, 'page' );
-		if ( ! $p || 'publish' !== $p->post_status ) {
-			return null;
+		foreach ( self::all_pages_data() as $page ) {
+			if ( $page['slug'] === $slug ) {
+				return $page['url'];
+			}
 		}
-		if ( '1' !== get_post_meta( $p->ID, self::META_FLAG, true ) ) {
-			return null;
-		}
-		return (string) get_permalink( $p->ID );
+		return null;
 	}
 
 	public static function bust_cache(): void {
