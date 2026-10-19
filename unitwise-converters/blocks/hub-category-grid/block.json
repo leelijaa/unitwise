@@ -1,0 +1,20 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "unitwise/hub-category-grid",
+	"title": "UnitWise Category Grid",
+	"description": "Grid of converter category cards linking to each silo landing page. Reads live data from the plugin registry.",
+	"category": "widgets",
+	"icon": "grid-view",
+	"keywords": ["categories", "grid", "converters"],
+	"textdomain": "unitwise-converters",
+	"supports": {
+		"html": false,
+		"multiple": false
+	},
+	"attributes": {
+		"heading":    { "type": "string", "default": "Browse by Category" },
+		"subheading": { "type": "string", "default": "Pick a measurement type to see all available converters." }
+	},
+	"render": "file:./render.php"
+}

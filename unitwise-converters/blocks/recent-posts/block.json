@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "unitwise/recent-posts",
+	"title": "UnitWise Recent Posts",
+	"description": "Grid of the latest blog posts with thumbnail, category badge, author and date.",
+	"category": "widgets",
+	"icon": "admin-post",
+	"keywords": ["blog", "posts", "recent", "articles"],
+	"textdomain": "unitwise-converters",
+	"supports": {
+		"html": false,
+		"multiple": false
+	},
+	"attributes": {
+		"heading":    { "type": "string",  "default": "From the Blog" },
+		"subheading": { "type": "string",  "default": "Tips, guides, and insights about unit conversion." },
+		"count":      { "type": "integer", "default": 3 }
+	},
+	"render": "file:./render.php"
+}

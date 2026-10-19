@@ -1,0 +1,20 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "unitwise/hub-newsletter",
+	"title": "UnitWise Newsletter CTA",
+	"description": "Newsletter sign-up callout with editable heading and subtext.",
+	"category": "widgets",
+	"icon": "email",
+	"keywords": ["newsletter", "email", "subscribe", "cta"],
+	"textdomain": "unitwise-converters",
+	"supports": {
+		"html": false,
+		"multiple": false
+	},
+	"attributes": {
+		"heading": { "type": "string", "default": "Stay in the Loop" },
+		"subtext": { "type": "string", "default": "Get notified when we add new converters, guides, and tools. No spam, unsubscribe any time." }
+	},
+	"render": "file:./render.php"
+}

@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "unitwise/hub-hero",
+	"title": "UnitWise Hub Hero",
+	"description": "Full-width homepage hero with headline, lead text, badge and live converter/category stats.",
+	"category": "widgets",
+	"icon": "cover-image",
+	"keywords": ["hero", "banner", "homepage"],
+	"textdomain": "unitwise-converters",
+	"supports": {
+		"html": false,
+		"multiple": false
+	},
+	"attributes": {
+		"badge":      { "type": "string", "default": "Free & No Sign-up Required" },
+		"headline":   { "type": "string", "default": "Free Online" },
+		"accentText": { "type": "string", "default": "Unit Converters" },
+		"lead":       { "type": "string", "default": "Instant, accurate conversions for weight, mass, and more. Beautifully simple, completely free." }
+	},
+	"render": "file:./render.php"
+}

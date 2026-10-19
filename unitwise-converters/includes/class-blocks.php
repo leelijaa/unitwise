@@ -17,7 +17,15 @@ class Unitwise_Blocks {
 	}
 
 	public static function register_blocks(): void {
-		$blocks = [ 'converter', 'conversion-table', 'popular-converters' ];
+		$blocks = [
+			'converter',
+			'conversion-table',
+			'popular-converters',
+			'hub-hero',
+			'hub-category-grid',
+			'hub-newsletter',
+			'recent-posts',
+		];
 
 		foreach ( $blocks as $block ) {
 			$path = UNITWISE_DIR . 'blocks/' . $block;
