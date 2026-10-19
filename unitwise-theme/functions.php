@@ -172,6 +172,11 @@ function unitwise_theme_seo_tags(): void {
 		return;
 	}
 
+	// Paged thin archives already have noindex via unitwise_theme_thin_archive_noindex — no canonical/OG needed
+	if ( is_paged() && ( is_home() || is_archive() ) ) {
+		return;
+	}
+
 	// Value pages: SEO handled by Unitwise_Value_Pages::output_seo() in the plugin
 	if ( is_singular( 'page' ) ) {
 		$vp_id = get_the_ID();
@@ -214,6 +219,10 @@ function unitwise_theme_seo_tags(): void {
 	} elseif ( is_singular( 'post' ) ) {
 		$og_type = 'article';
 		$title   = get_the_title() . ' | ' . get_bloginfo( 'name' );
+		$desc    = has_excerpt()
+			? wp_strip_all_tags( get_the_excerpt() )
+			: wp_trim_words( wp_strip_all_tags( apply_filters( 'the_content', get_the_content() ) ), 20 );
+		$url     = get_permalink();
 	} elseif ( is_singular() ) {
 		$title   = get_the_title() . ' | ' . get_bloginfo( 'name' );
 		$desc    = has_excerpt()
@@ -291,6 +300,8 @@ function unitwise_theme_seo_tags(): void {
 	echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
 	if ( $og_image ) {
 		echo "<meta name=\"twitter:image\" content=\"" . esc_url( $og_image ) . "\">\n";
+		echo "<meta name=\"twitter:image:width\" content=\"1200\">\n";
+		echo "<meta name=\"twitter:image:height\" content=\"630\">\n";
 		echo "<meta name=\"twitter:image:alt\" content=\"{$og_alt}\">\n";
 	}
 }

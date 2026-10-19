@@ -7,10 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$badge       = esc_html( $attributes['badge']      ?? 'Free & No Sign-up Required' );
-$headline    = esc_html( $attributes['headline']   ?? 'Free Online' );
-$accent_text = esc_html( $attributes['accentText'] ?? 'Unit Converters' );
-$lead        = esc_html( $attributes['lead']       ?? '' );
+$badge       = $attributes['badge']      ?? 'Free & No Sign-up Required';
+$headline    = $attributes['headline']   ?? 'Free Online';
+$accent_text = $attributes['accentText'] ?? 'Unit Converters';
+$lead        = $attributes['lead']       ?? '';
 
 $converter_count = wp_count_posts( 'unitwise_converter' )->publish ?? 41;
 $count_result    = wp_count_terms( [ 'taxonomy' => 'unitwise_category', 'hide_empty' => false ] );
@@ -24,19 +24,19 @@ $category_count  = ( is_wp_error( $count_result ) || ! $count_result ) ? 1 : (in
 		<div class="animate-rise">
 			<span class="hub-hero__badge">
 				<span class="hub-hero__badge-dot" aria-hidden="true"></span>
-				<?php echo $badge; ?>
+				<?php echo esc_html( $badge ); ?>
 			</span>
 		</div>
 
 		<h1 class="hub-hero__title animate-rise-2">
-			<?php echo $headline; ?>
+			<?php echo esc_html( $headline ); ?>
 			<?php if ( $accent_text ) : ?>
-				<span class="accent"><?php echo $accent_text; ?></span>
+				<span class="accent"><?php echo esc_html( $accent_text ); ?></span>
 			<?php endif; ?>
 		</h1>
 
 		<?php if ( $lead ) : ?>
-			<p class="hub-hero__subtitle animate-rise-3"><?php echo $lead; ?></p>
+			<p class="hub-hero__subtitle animate-rise-3"><?php echo esc_html( $lead ); ?></p>
 		<?php endif; ?>
 
 		<div class="hub-hero__stats animate-rise-3">

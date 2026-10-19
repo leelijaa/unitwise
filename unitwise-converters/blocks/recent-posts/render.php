@@ -7,16 +7,27 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$heading    = esc_html( $attributes['heading']    ?? 'From the Blog' );
-$subheading = esc_html( $attributes['subheading'] ?? '' );
+$heading    = $attributes['heading']    ?? 'From the Blog';
+$subheading = $attributes['subheading'] ?? '';
 $count      = max( 1, (int) ( $attributes['count'] ?? 3 ) );
 
-$recent_posts = new WP_Query( [
-	'post_type'      => 'post',
-	'post_status'    => 'publish',
-	'posts_per_page' => $count,
-	'no_found_rows'  => true,
-] );
+$cache_key    = 'uw_recent_posts_block_' . $count;
+$cached_posts = get_transient( $cache_key );
+if ( false === $cached_posts ) {
+	$recent_posts = new WP_Query( [
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => $count,
+		'no_found_rows'  => true,
+	] );
+	$cached_posts = $recent_posts->posts;
+	set_transient( $cache_key, $cached_posts, HOUR_IN_SECONDS );
+} else {
+	$recent_posts = new WP_Query();
+	$recent_posts->posts       = $cached_posts;
+	$recent_posts->post_count  = count( $cached_posts );
+	$recent_posts->found_posts = count( $cached_posts );
+}
 
 if ( ! $recent_posts->have_posts() ) {
 	return;
@@ -27,9 +38,9 @@ $blog_href = $blog_pid ? get_permalink( $blog_pid ) : home_url( '/blog/' );
 ?>
 <section <?php echo get_block_wrapper_attributes( [ 'class' => 'hub-section' ] ); ?> aria-label="<?php esc_attr_e( 'Latest articles', 'unitwise-converters' ); ?>">
 	<div class="hub-section__header">
-		<h2 class="hub-section__title"><?php echo $heading; ?></h2>
+		<h2 class="hub-section__title"><?php echo esc_html( $heading ); ?></h2>
 		<?php if ( $subheading ) : ?>
-			<p class="hub-section__subtitle"><?php echo $subheading; ?></p>
+			<p class="hub-section__subtitle"><?php echo esc_html( $subheading ); ?></p>
 		<?php endif; ?>
 	</div>
 

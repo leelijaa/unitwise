@@ -124,17 +124,24 @@ if ( class_exists( 'Unitwise_Registry' ) ) {
 				<?php endif; ?>
 			</div>
 
-			<!-- Popular Converters -->
+			<!-- Popular Converters — sourced from the same transient used by the footer nav -->
 			<div class="site-footer__upper-col">
 				<h3 class="site-footer__upper-heading"><?php esc_html_e( 'Popular Converters', 'unitwise-theme' ); ?></h3>
+				<?php
+				$popular_converters = [];
+				foreach ( $footer_cat_cols as $col ) {
+					foreach ( array_slice( $col['converters'], 0, 6 ) as $c ) {
+						$popular_converters[] = $c;
+						if ( count( $popular_converters ) >= 6 ) { break 2; }
+					}
+				}
+				if ( $popular_converters ) : ?>
 				<ul class="site-footer__upper-links">
-					<li><a href="<?php echo esc_url( home_url( '/weight/grams-to-kilograms/' ) ); ?>"><?php esc_html_e( 'Grams to Kilograms', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/weight/pounds-to-kilograms/' ) ); ?>"><?php esc_html_e( 'Pounds to Kilograms', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/weight/ounces-to-grams/' ) ); ?>"><?php esc_html_e( 'Ounces to Grams', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/weight/kilograms-to-pounds/' ) ); ?>"><?php esc_html_e( 'Kilograms to Pounds', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/weight/kilograms-to-grams/' ) ); ?>"><?php esc_html_e( 'Kilograms to Grams', 'unitwise-theme' ); ?></a></li>
-					<li><a href="<?php echo esc_url( home_url( '/weight/grams-to-ounces/' ) ); ?>"><?php esc_html_e( 'Grams to Ounces', 'unitwise-theme' ); ?></a></li>
+					<?php foreach ( $popular_converters as $c ) : ?>
+					<li><a href="<?php echo esc_url( $c['url'] ); ?>"><?php echo esc_html( $c['title'] ); ?></a></li>
+					<?php endforeach; ?>
 				</ul>
+				<?php endif; ?>
 			</div>
 
 			<!-- Learn + Site -->

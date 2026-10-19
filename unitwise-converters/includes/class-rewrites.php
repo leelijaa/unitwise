@@ -21,6 +21,18 @@ class Unitwise_Rewrites {
 		add_filter( 'template_include', [ __CLASS__, 'route_template' ] );
 		add_filter( 'post_type_link', [ __CLASS__, 'converter_permalink' ], 10, 2 );
 		add_action( 'template_redirect', [ __CLASS__, 'handle_legacy_redirects' ] );
+		// Sitemap: exclude unitwise_category (its query-var URLs redirect); add clean silo URLs instead.
+		add_filter( 'wp_sitemaps_taxonomies', [ __CLASS__, 'exclude_from_sitemap' ] );
+		add_action( 'wp_sitemaps_init', [ __CLASS__, 'register_silo_sitemap' ] );
+	}
+
+	public static function exclude_from_sitemap( array $taxonomies ): array {
+		unset( $taxonomies['unitwise_category'] );
+		return $taxonomies;
+	}
+
+	public static function register_silo_sitemap(): void {
+		wp_register_sitemap_provider( 'unitwise-silos', new Unitwise_Silo_Sitemap_Provider() );
 	}
 
 	/**
@@ -210,13 +222,39 @@ class Unitwise_Rewrites {
 		if ( is_tax( 'unitwise_category' ) ) {
 			$term = get_queried_object();
 			if ( $term instanceof WP_Term ) {
-				$clean = home_url( '/' . $term->slug . '/' );
+				$clean        = home_url( '/' . $term->slug . '/' );
 				$request_path = wp_parse_url( esc_url_raw( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
-			if ( ! str_contains( (string) $request_path, '/' . $term->slug . '/' ) ) {
+				if ( ! str_contains( (string) $request_path, '/' . $term->slug . '/' ) ) {
 					wp_safe_redirect( $clean, 301 );
 					exit;
 				}
 			}
 		}
+	}
+}
+
+/**
+ * Custom WP Sitemaps provider that emits clean silo URLs (e.g. /weight/).
+ * Registered via Unitwise_Rewrites::register_silo_sitemap() on wp_sitemaps_init.
+ */
+class Unitwise_Silo_Sitemap_Provider extends WP_Sitemaps_Provider {
+
+	public function __construct() {
+		$this->name        = 'unitwise-silos';
+		$this->object_type = 'unitwise_silo';
+	}
+
+	public function get_url_list( int $page_num, string $object_subtype = '' ): array {
+		$urls = [];
+		if ( class_exists( 'Unitwise_Registry' ) ) {
+			foreach ( Unitwise_Registry::get_categories() as $slug => $cat ) {
+				$urls[] = [ 'loc' => home_url( '/' . $slug . '/' ) ];
+			}
+		}
+		return $urls;
+	}
+
+	public function get_max_num_pages( string $object_subtype = '' ): int {
+		return 1;
 	}
 }

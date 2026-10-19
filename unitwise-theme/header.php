@@ -45,9 +45,13 @@
 	</div>
 
 	<nav id="mobile-nav" class="mobile-nav" aria-label="<?php esc_attr_e( 'Mobile navigation', 'unitwise-theme' ); ?>" hidden>
-		<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'unitwise-theme' ); ?></a>
-		<a href="<?php echo esc_url( home_url( '/weight/' ) ); ?>"><?php esc_html_e( 'Weight Converters', 'unitwise-theme' ); ?></a>
-		<a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>"><?php esc_html_e( 'Blog', 'unitwise-theme' ); ?></a>
+		<?php wp_nav_menu( [
+			'theme_location' => 'primary',
+			'menu_class'     => 'mobile-nav__menu',
+			'container'      => false,
+			'depth'          => 1,
+			'fallback_cb'    => false,
+		] ); ?>
 	</nav>
 </header>
 

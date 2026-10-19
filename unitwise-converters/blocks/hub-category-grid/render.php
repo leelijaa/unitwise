@@ -11,26 +11,35 @@ if ( ! class_exists( 'Unitwise_Registry' ) ) {
 	return;
 }
 
-$heading    = esc_html( $attributes['heading']    ?? 'Browse by Category' );
-$subheading = esc_html( $attributes['subheading'] ?? '' );
+$heading    = $attributes['heading']    ?? 'Browse by Category';
+$subheading = $attributes['subheading'] ?? '';
 
 $categories = Unitwise_Registry::get_categories();
 if ( empty( $categories ) ) {
 	return;
 }
+
+// Pre-fetch all terms in one query to avoid N+1 lookups in the loop.
+$terms_list   = get_terms( [ 'taxonomy' => 'unitwise_category', 'hide_empty' => false ] );
+$terms_by_slug = [];
+if ( ! is_wp_error( $terms_list ) ) {
+	foreach ( $terms_list as $t ) {
+		$terms_by_slug[ $t->slug ] = $t;
+	}
+}
 ?>
 <section <?php echo get_block_wrapper_attributes( [ 'class' => 'hub-section' ] ); ?> aria-label="<?php esc_attr_e( 'Converter categories', 'unitwise-converters' ); ?>">
 	<div class="hub-section__header">
-		<h2 class="hub-section__title"><?php echo $heading; ?></h2>
+		<h2 class="hub-section__title"><?php echo esc_html( $heading ); ?></h2>
 		<?php if ( $subheading ) : ?>
-			<p class="hub-section__subtitle"><?php echo $subheading; ?></p>
+			<p class="hub-section__subtitle"><?php echo esc_html( $subheading ); ?></p>
 		<?php endif; ?>
 	</div>
 
 	<div class="hub-categories">
 		<ul class="category-grid" role="list">
 			<?php foreach ( $categories as $slug => $cat ) :
-				$term  = get_term_by( 'slug', $slug, 'unitwise_category' );
+				$term  = $terms_by_slug[ $slug ] ?? null;
 				$count = $term ? $term->count : 0;
 			?>
 			<li class="category-card">

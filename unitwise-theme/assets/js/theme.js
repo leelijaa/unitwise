@@ -146,9 +146,12 @@
 					});
 				}
 
-				if (!data.data.hasMore || nextPage >= maxPages) {
+				if (data.success && (!data.data.hasMore || nextPage >= maxPages)) {
 					const wrap = loadMoreBtn.closest('.load-more-wrap');
 					if (wrap) wrap.remove();
+				} else if (data.success) {
+					loadMoreBtn.disabled = false;
+					loadMoreBtn.textContent = 'Load More';
 				} else {
 					loadMoreBtn.disabled = false;
 					loadMoreBtn.textContent = 'Load More';
