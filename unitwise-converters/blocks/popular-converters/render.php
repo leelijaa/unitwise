@@ -54,7 +54,7 @@ if ( ! $query->have_posts() ) {
 					<span class="unitwise-popular-symbols" aria-hidden="true">
 						<?php echo esc_html( $from_sym ); ?> → <?php echo esc_html( $to_sym ); ?>
 					</span>
-					<span class="unitwise-popular-label"><?php the_title(); ?></span>
+					<span class="unitwise-popular-label"><?php echo esc_html( get_the_title() ); ?></span>
 				</a>
 			</li>
 		<?php endwhile; wp_reset_postdata(); ?>

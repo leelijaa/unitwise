@@ -321,7 +321,7 @@ class Unitwise_Seeder {
 				'post_content' => '',
 			] );
 
-			if ( is_wp_error( $post_id ) ) {
+			if ( is_wp_error( $post_id ) || ! $post_id ) {
 				continue;
 			}
 
@@ -483,7 +483,7 @@ class Unitwise_Seeder {
 				'post_date'    => $post_data['date'],
 			] );
 
-			if ( is_wp_error( $post_id ) ) {
+			if ( is_wp_error( $post_id ) || ! $post_id ) {
 				continue;
 			}
 

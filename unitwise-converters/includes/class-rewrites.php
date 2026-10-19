@@ -112,6 +112,12 @@ class Unitwise_Rewrites {
 			$wp_query->set( 'unitwise_from', $from );
 			$wp_query->set( 'unitwise_to',   $to );
 			setup_postdata( $post );
+		} else {
+			// No converter post found — send a proper 404.
+			global $wp_query;
+			$wp_query->set_404();        // phpcs:ignore WordPress.WP.GlobalVariablesOverride
+			status_header( 404 );
+			nocache_headers();
 		}
 
 		$located = locate_template( [

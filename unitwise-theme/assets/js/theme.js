@@ -128,7 +128,7 @@
 
 					// Update URL so page 2+ is bookmarkable/shareable
 					const url = new URL(window.location.href);
-					url.searchParams.set('page', nextPage);
+					url.searchParams.set('paged', nextPage);
 					history.pushState({ page: nextPage }, '', url.toString());
 
 					// Animate newly added cards on insertion with stagger

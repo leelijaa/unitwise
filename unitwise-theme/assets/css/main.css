@@ -643,6 +643,7 @@ ul, ol { padding-left: 1.5em; }
 	transition: background .15s;
 }
 .hub-newsletter__btn:hover { background: var(--uw-primary-light); }
+.hub-newsletter__coming-soon { color: rgba(255,255,255,.85); font-size: .9375rem; margin: var(--uw-space-4) 0 0; }
 
 /* --------------------------------------------------------------------------
    Silo landing — hero + professional card grid
