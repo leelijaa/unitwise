@@ -4,7 +4,7 @@
 	"name": "unitwise/hub-hero",
 	"title": "UnitWise Hub Hero",
 	"description": "Full-width homepage hero with headline, lead text, badge and live converter/category stats.",
-	"category": "widgets",
+	"category": "unitwise",
 	"icon": "cover-image",
 	"keywords": ["hero", "banner", "homepage"],
 	"textdomain": "unitwise-converters",
@@ -18,5 +18,6 @@
 		"accentText": { "type": "string", "default": "Unit Converters" },
 		"lead":       { "type": "string", "default": "Instant, accurate conversions for weight, mass, and more. Beautifully simple, completely free." }
 	},
+	"editorScript": "unitwise-blocks-editor",
 	"render": "file:./render.php"
 }

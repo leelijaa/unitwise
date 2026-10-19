@@ -4,7 +4,7 @@
 	"name": "unitwise/hub-newsletter",
 	"title": "UnitWise Newsletter CTA",
 	"description": "Newsletter sign-up callout with editable heading and subtext.",
-	"category": "widgets",
+	"category": "unitwise",
 	"icon": "email",
 	"keywords": ["newsletter", "email", "subscribe", "cta"],
 	"textdomain": "unitwise-converters",
@@ -16,5 +16,6 @@
 		"heading": { "type": "string", "default": "Stay in the Loop" },
 		"subtext": { "type": "string", "default": "Get notified when we add new converters, guides, and tools. No spam, unsubscribe any time." }
 	},
+	"editorScript": "unitwise-blocks-editor",
 	"render": "file:./render.php"
 }

@@ -4,7 +4,7 @@
 	"name": "unitwise/recent-posts",
 	"title": "UnitWise Recent Posts",
 	"description": "Grid of the latest blog posts with thumbnail, category badge, author and date.",
-	"category": "widgets",
+	"category": "unitwise",
 	"icon": "admin-post",
 	"keywords": ["blog", "posts", "recent", "articles"],
 	"textdomain": "unitwise-converters",
@@ -17,5 +17,6 @@
 		"subheading": { "type": "string",  "default": "Tips, guides, and insights about unit conversion." },
 		"count":      { "type": "integer", "default": 3 }
 	},
+	"editorScript": "unitwise-blocks-editor",
 	"render": "file:./render.php"
 }
