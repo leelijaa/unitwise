@@ -411,6 +411,9 @@ function unitwise_theme_bust_footer_cache(): void {
 
 function unitwise_theme_bust_footer_recent(): void {
 	delete_transient( 'uw_footer_recent_posts' );
+	foreach ( range( 1, 6 ) as $n ) {
+		delete_transient( 'uw_recent_posts_block_' . $n );
+	}
 }
 
 // -------------------------------------------------------------------------
@@ -429,6 +432,7 @@ function unitwise_theme_robots_txt( string $output, bool $public ): string {
 		$output .= "Disallow: /*/feed/\n";
 		$output .= "Disallow: /?unitwise_cat=\n";
 		$output .= "Disallow: /?unitwise_from=\n";
+		$output .= "Disallow: /?unitwise_to=\n";
 		$output .= "\nSitemap: " . home_url( '/wp-sitemap.xml' ) . "\n";
 	}
 	return $output;

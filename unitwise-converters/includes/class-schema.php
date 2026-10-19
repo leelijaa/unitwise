@@ -348,9 +348,13 @@ class Unitwise_Schema {
 		if ( ! $post_id ) {
 			return;
 		}
+		$author_id = (int) get_post_field( 'post_author', $post_id );
+		if ( ! $author_id ) {
+			return; // Orphaned post — no valid author; skip schema to avoid invalid @id fragment.
+		}
 		$url         = (string) get_permalink( $post_id );
 		$title       = wp_strip_all_tags( get_the_title( $post_id ) );
-		$author_name = get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', $post_id ) );
+		$author_name = get_the_author_meta( 'display_name', $author_id );
 		$published   = get_the_date( 'c', $post_id );
 		$modified    = get_the_modified_date( 'c', $post_id );
 
@@ -365,9 +369,9 @@ class Unitwise_Schema {
 			'isPartOf'          => [ '@id' => home_url( '/#website' ) ],
 			'author'            => [
 				'@type' => 'Person',
-				'@id'   => get_author_posts_url( get_post_field( 'post_author', $post_id ) ) . '#author',
+				'@id'   => get_author_posts_url( $author_id ) . '#author',
 				'name'  => $author_name,
-				'url'   => get_author_posts_url( get_post_field( 'post_author', $post_id ) ),
+				'url'   => get_author_posts_url( $author_id ),
 			],
 			'publisher'         => [ '@id' => home_url( '/#organization' ) ],
 			'inLanguage'        => get_bloginfo( 'language' ),

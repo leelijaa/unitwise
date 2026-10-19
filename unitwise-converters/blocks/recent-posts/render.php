@@ -55,7 +55,7 @@ $blog_href = $blog_pid ? get_permalink( $blog_pid ) : home_url( '/blog/' );
 			<div class="post-card__thumb-wrap">
 				<a href="<?php echo esc_url( get_permalink() ); ?>" class="post-card__thumb" tabindex="-1" aria-hidden="true">
 					<?php if ( has_post_thumbnail() ) : ?>
-						<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => 'lazy' ] ); ?>
+						<?php the_post_thumbnail( 'unitwise-card', [ 'loading' => 'lazy', 'alt' => esc_attr( get_the_title() ) ] ); ?>
 					<?php else : ?>
 						<span class="post-card__thumb-placeholder" aria-hidden="true">
 							<?php echo esc_html( strtoupper( substr( get_bloginfo( 'name' ), 0, 2 ) ) ); ?>

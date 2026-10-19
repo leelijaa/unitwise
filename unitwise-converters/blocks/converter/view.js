@@ -55,7 +55,9 @@
 			const f = factors[ from ];
 			const t = factors[ to ];
 			if ( f === undefined || t === undefined ) return;
-			output.textContent = formatResult( val * f / t, decimals );
+			const converted = val * f / t;
+			if ( ! isFinite( converted ) ) { output.textContent = '—'; return; }
+			output.textContent = formatResult( converted, decimals );
 		}
 
 		input.addEventListener( 'input', update );
