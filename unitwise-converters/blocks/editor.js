@@ -138,31 +138,7 @@
 		save: function () { return null; },
 	} );
 
-	// ── Converter ────────────────────────────────────────────────────────────────
-
-	registerBlockType( 'unitwise/converter', {
-		apiVersion: 3,
-		attributes: {
-			from:         { type: 'string', default: '' },
-			to:           { type: 'string', default: '' },
-			defaultValue: { type: 'number', default: 1 },
-		},
-		edit: function ( props ) {
-			var a   = props.attributes;
-			var set = setter.bind( null, props );
-			return el( 'div', useBlockProps(),
-				el( InspectorControls, {},
-					el( c.PanelBody, { title: __( 'Converter', 'unitwise-converters' ), initialOpen: true },
-						el( c.TextControl, { label: __( 'From unit (e.g. grams)', 'unitwise-converters' ), value: a.from, onChange: set( 'from' ) } ),
-						el( c.TextControl, { label: __( 'To unit (e.g. kilograms)', 'unitwise-converters' ), value: a.to, onChange: set( 'to' ) } ),
-						el( c.NumberControl, { label: __( 'Default value', 'unitwise-converters' ), value: a.defaultValue, min: 0, onChange: function ( v ) { set( 'defaultValue' )( parseFloat( v ) || 1 ); } } )
-					)
-				),
-				preview( 'unitwise/converter', a )
-			);
-		},
-		save: function () { return null; },
-	} );
+	// unitwise/converter has its own blocks/converter/edit.js — registered there.
 
 	// ── Conversion Table ─────────────────────────────────────────────────────────
 
