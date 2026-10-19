@@ -70,7 +70,7 @@ if ( count( $crumbs ) < 2 ) {
 $unitwise_cat   = get_query_var( 'unitwise_cat' );
 $is_value_page  = is_singular( 'page' ) && get_the_ID() && '1' === get_post_meta( get_the_ID(), '_uw_value_page', true );
 $has_own_schema = ! defined( 'RANK_MATH_VERSION' ) && ! defined( 'WPSEO_VERSION' )
-	&& ( $unitwise_cat || $is_value_page );
+	&& ( $unitwise_cat || $is_value_page || is_singular( 'post' ) || is_home() );
 
 $ld_items = [];
 foreach ( $crumbs as $pos => $crumb ) {

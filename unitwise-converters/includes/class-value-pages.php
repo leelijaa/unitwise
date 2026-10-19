@@ -761,7 +761,7 @@ class Unitwise_Value_Pages {
 		echo "<meta property=\"og:title\" content=\"" . esc_attr( $title_raw ) . "\">\n";
 		echo "<meta property=\"og:description\" content=\"" . esc_attr( $desc_raw ) . "\">\n";
 		echo "<meta property=\"og:url\" content=\"" . esc_url( $url_raw ) . "\">\n";
-		echo "<meta property=\"og:type\" content=\"website\">\n";
+		echo "<meta property=\"og:type\" content=\"article\">\n";
 		echo "<meta property=\"og:site_name\" content=\"" . esc_attr( $site ) . "\">\n";
 		echo "<meta property=\"og:locale\" content=\"" . esc_attr( str_replace( '-', '_', get_locale() ) ) . "\">\n";
 		if ( $og_image ) {

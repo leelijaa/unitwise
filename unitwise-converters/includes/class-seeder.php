@@ -171,10 +171,15 @@ class Unitwise_Seeder {
 	}
 
 	/**
-	 * Auto-seeds the front page with hub blocks when its post_content is empty.
-	 * Runs on every admin_init so the page is never left blank.
+	 * Auto-seeds the front page with hub blocks when its post_content is empty
+	 * AND it has never been seeded before. Once seeded (option set), clearing the
+	 * page in Gutenberg no longer triggers a re-seed automatically — use the
+	 * "Seed Homepage Blocks" button in Tools → UnitWise Seeder instead.
 	 */
 	public static function auto_seed_homepage(): void {
+		if ( get_option( 'unitwise_homepage_seeded' ) ) {
+			return;
+		}
 		$front_id = (int) get_option( 'page_on_front' );
 		if ( ! $front_id ) {
 			return;
@@ -228,11 +233,16 @@ class Unitwise_Seeder {
 			. "\n\n"
 			. '<!-- wp:unitwise/hub-newsletter {"heading":"Stay in the Loop","subtext":"Get notified when we add new converters, guides, and tools. No spam, unsubscribe any time."} /-->';
 
-		wp_update_post( [
+		$result = wp_update_post( [
 			'ID'           => $front_id,
 			'post_content' => $blocks,
-		] );
+		], true );
 
+		if ( is_wp_error( $result ) || 0 === $result ) {
+			return false;
+		}
+
+		update_option( 'unitwise_homepage_seeded', '1' );
 		return true;
 	}
 
@@ -457,7 +467,7 @@ class Unitwise_Seeder {
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
 			] );
-			$existing = $existing_q->have_posts() ? true : false;
+			$existing = (bool) $existing_q->have_posts();
 			if ( $existing ) {
 				++$skipped;
 				continue;
@@ -534,7 +544,7 @@ class Unitwise_Seeder {
 <li>250 g = 0.25 kg</li>
 </ul>
 
-<p>Use our <a href="/weight/grams-to-kilograms/">Grams to Kilograms converter</a> for instant, accurate results.</p>',
+<p>Use our <a href="' . esc_url( home_url( '/weight/grams-to-kilograms/' ) ) . '">Grams to Kilograms converter</a> for instant, accurate results.</p>',
 			],
 			[
 				'title'    => 'How to Convert Pounds to Kilograms: The Complete Guide',
@@ -570,7 +580,7 @@ class Unitwise_Seeder {
 <h2>Why the Difference Matters</h2>
 <p>The United States, Liberia, and Myanmar are the only countries that primarily use the imperial pound. The rest of the world uses kilograms. This makes conversion essential for international communication, travel, and trade.</p>
 
-<p>For quick conversions, use our <a href="/weight/pounds-to-kilograms/">Pounds to Kilograms converter</a>.</p>',
+<p>For quick conversions, use our <a href="' . esc_url( home_url( '/weight/pounds-to-kilograms/' ) ) . '">Pounds to Kilograms converter</a>.</p>',
 			],
 			[
 				'title'    => 'What Is an Ounce? Understanding Troy, Fluid, and Avoirdupois Ounces',
@@ -596,7 +606,7 @@ class Unitwise_Seeder {
 <li>When a drink label says "12 fl oz," it means fluid ounces (volume).</li>
 </ul>
 
-<p>Convert between ounces and grams using our <a href="/weight/ounces-to-grams/">Ounces to Grams converter</a>.</p>',
+<p>Convert between ounces and grams using our <a href="' . esc_url( home_url( '/weight/ounces-to-grams/' ) ) . '">Ounces to Grams converter</a>.</p>',
 			],
 			[
 				'title'    => 'Metric vs Imperial: Which Unit System Should You Use?',
@@ -651,7 +661,7 @@ class Unitwise_Seeder {
 <li>Vitamins B12, D, folate → micrograms</li>
 </ul>
 
-<p>Use our <a href="/weight/grams-to-milligrams/">Grams to Milligrams converter</a> to double-check any label value instantly.</p>',
+<p>Use our <a href="' . esc_url( home_url( '/weight/grams-to-milligrams/' ) ) . '">Grams to Milligrams converter</a> to double-check any label value instantly.</p>',
 			],
 			[
 				'title'    => 'Stone to Kilograms: The UK Body Weight Conversion Explained',
@@ -685,7 +695,7 @@ class Unitwise_Seeder {
 <h2>Why Does the Stone Persist?</h2>
 <p>Habit and familiarity keep the stone in everyday British use despite the UK officially adopting SI units in 1965. Doctors sometimes use kilograms for clinical purposes while patients think in stones — so conversion is a regular need.</p>
 
-<p>Convert any stone value to kilograms with our <a href="/weight/stones-to-kilograms/">Stones to Kilograms converter</a>.</p>',
+<p>Convert any stone value to kilograms with our <a href="' . esc_url( home_url( '/weight/stones-to-kilograms/' ) ) . '">Stones to Kilograms converter</a>.</p>',
 			],
 			[
 				'title'    => '5 Common Unit Conversion Mistakes and How to Avoid Them',
@@ -801,7 +811,7 @@ class Unitwise_Seeder {
 <h2>Price and Carat Weight</h2>
 <p>Diamond prices scale non-linearly with carat weight. A 2-carat diamond is not twice the price of a 1-carat diamond — it is typically 4× more expensive, because large gem-quality stones are exponentially rarer.</p>
 
-<p>Use our <a href="/weight/carats-to-grams/">Carats to Grams converter</a> for accurate carat conversions.</p>',
+<p>Use our <a href="' . esc_url( home_url( '/weight/carats-to-grams/' ) ) . '">Carats to Grams converter</a> for accurate carat conversions.</p>',
 			],
 		];
 	}

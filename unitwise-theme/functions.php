@@ -185,8 +185,12 @@ function unitwise_theme_seo_tags(): void {
 	$to   = get_query_var( 'unitwise_to' );
 
 	// Noindex for non-content pages
-	if ( is_404() || is_search() ) {
+	if ( is_404() ) {
 		echo "<meta name=\"robots\" content=\"noindex, nofollow\">\n";
+		return;
+	}
+	if ( is_search() ) {
+		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
 		return;
 	}
 
@@ -261,7 +265,8 @@ function unitwise_theme_seo_tags(): void {
 		echo "<meta property=\"og:image\" content=\"" . esc_url( $og_image ) . "\">\n";
 		echo "<meta property=\"og:image:width\" content=\"1200\">\n";
 		echo "<meta property=\"og:image:height\" content=\"630\">\n";
-		echo "<meta property=\"og:image:alt\" content=\"{$title}\">\n";
+		$og_alt = esc_attr( wp_strip_all_tags( get_bloginfo( 'name' ) ) );
+		echo "<meta property=\"og:image:alt\" content=\"{$og_alt}\">\n";
 	}
 	if ( 'article' === $og_type ) {
 		echo "<meta property=\"article:published_time\" content=\"" . esc_attr( get_the_date( 'c' ) ) . "\">\n";
@@ -283,7 +288,7 @@ function unitwise_theme_seo_tags(): void {
 	echo "<meta name=\"twitter:description\" content=\"{$desc}\">\n";
 	if ( $og_image ) {
 		echo "<meta name=\"twitter:image\" content=\"" . esc_url( $og_image ) . "\">\n";
-		echo "<meta name=\"twitter:image:alt\" content=\"{$title}\">\n";
+		echo "<meta name=\"twitter:image:alt\" content=\"{$og_alt}\">\n";
 	}
 }
 

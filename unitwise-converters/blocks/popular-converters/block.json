@@ -4,7 +4,7 @@
   "name": "unitwise/popular-converters",
   "version": "1.0.0",
   "title": "UnitWise Popular Converters",
-  "category": "widgets",
+  "category": "unitwise",
   "description": "Grid of converter links for hub and silo landing pages.",
   "keywords": [ "popular", "converters", "grid", "hub" ],
   "textdomain": "unitwise-converters",
@@ -25,6 +25,7 @@
   "supports": {
     "html": false
   },
+  "editorScript": "unitwise-blocks-editor",
   "render": "file:./render.php",
   "style": "file:./style.css"
 }

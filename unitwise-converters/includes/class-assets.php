@@ -21,11 +21,12 @@ class Unitwise_Assets {
 			return;
 		}
 
+		$css_path = UNITWISE_DIR . 'assets/css/converter.css';
 		wp_enqueue_style(
 			'unitwise-converter',
 			UNITWISE_URL . 'assets/css/converter.css',
 			[],
-			UNITWISE_VERSION
+			file_exists( $css_path ) ? (string) filemtime( $css_path ) : UNITWISE_VERSION
 		);
 	}
 }

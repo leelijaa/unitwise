@@ -4,7 +4,7 @@
   "name": "unitwise/conversion-table",
   "version": "1.0.0",
   "title": "UnitWise Conversion Table",
-  "category": "widgets",
+  "category": "unitwise",
   "description": "Server-rendered table of common conversion values — fully crawlable.",
   "keywords": [ "table", "conversion", "unit" ],
   "textdomain": "unitwise-converters",
@@ -21,6 +21,7 @@
   "supports": {
     "html": false
   },
+  "editorScript": "unitwise-blocks-editor",
   "render": "file:./render.php",
   "style": "file:./style.css"
 }

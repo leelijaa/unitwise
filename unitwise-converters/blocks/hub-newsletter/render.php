@@ -15,19 +15,7 @@ $subtext = esc_html( $attributes['subtext'] ?? '' );
 	<?php if ( $subtext ) : ?>
 		<p class="hub-newsletter__sub"><?php echo $subtext; ?></p>
 	<?php endif; ?>
-	<form class="hub-newsletter__form" method="post" aria-label="<?php esc_attr_e( 'Email sign-up form', 'unitwise-converters' ); ?>">
-		<label for="newsletter-email-<?php echo esc_attr( $block->context['postId'] ?? 'hub' ); ?>" class="screen-reader-text">
-			<?php esc_html_e( 'Email address', 'unitwise-converters' ); ?>
-		</label>
-		<input type="email"
-			id="newsletter-email-<?php echo esc_attr( $block->context['postId'] ?? 'hub' ); ?>"
-			name="email"
-			class="hub-newsletter__input"
-			placeholder="<?php esc_attr_e( 'you@example.com', 'unitwise-converters' ); ?>"
-			autocomplete="email"
-			required>
-		<button type="submit" class="hub-newsletter__btn">
-			<?php esc_html_e( 'Subscribe', 'unitwise-converters' ); ?>
-		</button>
-	</form>
+	<p class="hub-newsletter__coming-soon">
+		<?php esc_html_e( 'Newsletter coming soon — check back shortly.', 'unitwise-converters' ); ?>
+	</p>
 </aside>

@@ -96,28 +96,11 @@
 		});
 	}
 
-	/* -----------------------------------------------------------------------
-	   Newsletter form — not yet connected to an email provider
+	/* Load More — blog index (URL-aware)
 	----------------------------------------------------------------------- */
-	const newsForm = document.querySelector('.hub-newsletter__form');
-	if (newsForm) {
-		newsForm.addEventListener('submit', (e) => {
-			e.preventDefault();
-			const btn = newsForm.querySelector('.hub-newsletter__btn');
-			if (btn) { btn.textContent = 'Coming Soon'; btn.disabled = true; }
-			let note = newsForm.querySelector('.hub-newsletter__notice');
-			if (!note) {
-				note = document.createElement('p');
-				note.className = 'hub-newsletter__notice';
-				note.setAttribute('style', 'margin-top:.5rem;font-size:.875rem;opacity:.75;text-align:center');
-				newsForm.appendChild(note);
-			}
-			note.textContent = 'Newsletter launching soon — sign-ups are not being stored yet.';
-		});
-	}
 
 	/* -----------------------------------------------------------------------
-	   Load More — blog index
+	   Load More — blog index (pushes ?page=N into the URL for shareability)
 	----------------------------------------------------------------------- */
 	const loadMoreBtn = document.querySelector('.btn--load-more');
 	if (loadMoreBtn && typeof uwBlog !== 'undefined') {
@@ -142,6 +125,11 @@
 				if (data.success && data.data.html && grid) {
 					grid.insertAdjacentHTML('beforeend', data.data.html);
 					loadMoreBtn.dataset.page = String(nextPage);
+
+					// Update URL so page 2+ is bookmarkable/shareable
+					const url = new URL(window.location.href);
+					url.searchParams.set('page', nextPage);
+					history.pushState({ page: nextPage }, '', url.toString());
 
 					// Animate newly added cards on insertion with stagger
 					grid.querySelectorAll('.post-card:not(.animate-rise-sm)').forEach((el, i) => {

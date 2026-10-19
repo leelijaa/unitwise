@@ -32,7 +32,7 @@ class Unitwise_Shortcodes {
 		$from          = sanitize_key( $atts['from'] );
 		$to            = sanitize_key( $atts['to'] );
 		$default_value = (float) $atts['default_value'];
-		$attributes    = [ 'from' => $from, 'to' => $to ];
+		$attributes    = [ 'from' => $from, 'to' => $to, 'defaultValue' => $default_value ];
 
 		ob_start();
 		include UNITWISE_DIR . 'blocks/converter/render.php';

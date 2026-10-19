@@ -195,7 +195,7 @@ class Unitwise_Rewrites {
 		if ( ! is_singular() && ! empty( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$post = get_post( (int) $_GET['p'] ); // phpcs:ignore WordPress.Security.NonceVerification
 			if ( $post instanceof WP_Post && 'unitwise_converter' === $post->post_type ) {
-				wp_redirect( get_permalink( $post ), 301 );
+				wp_safe_redirect( get_permalink( $post ), 301 );
 				exit;
 			}
 		}
@@ -207,7 +207,7 @@ class Unitwise_Rewrites {
 				$clean = home_url( '/' . $term->slug . '/' );
 				$request_path = wp_parse_url( esc_url_raw( $_SERVER['REQUEST_URI'] ?? '' ), PHP_URL_PATH );
 			if ( ! str_contains( (string) $request_path, '/' . $term->slug . '/' ) ) {
-					wp_redirect( $clean, 301 );
+					wp_safe_redirect( $clean, 301 );
 					exit;
 				}
 			}

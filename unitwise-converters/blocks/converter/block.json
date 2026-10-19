@@ -4,7 +4,7 @@
   "name": "unitwise/converter",
   "version": "1.0.0",
   "title": "UnitWise Converter",
-  "category": "widgets",
+  "category": "unitwise",
   "description": "Interactive unit converter with a server-rendered no-JS fallback.",
   "keywords": [ "converter", "unit", "calculate" ],
   "textdomain": "unitwise-converters",

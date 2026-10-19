@@ -129,13 +129,86 @@
 						value: a.subtext, onChange: set( 'subtext' ),
 						placeholder: __( 'Subtext…', 'unitwise-converters' ),
 					} ),
-					el( 'div', { style: { display: 'flex', gap: 8, marginTop: 12 } },
-						el( 'span', { style: { flex: 1, background: '#fff', border: '1px solid #ccc', borderRadius: 4, padding: '8px 12px', fontSize: 13, color: '#aaa' } },
-							__( 'you@example.com', 'unitwise-converters' ) ),
-						el( 'span', { style: { background: '#0073aa', color: '#fff', borderRadius: 4, padding: '8px 16px', fontSize: 13 } },
-							__( 'Subscribe', 'unitwise-converters' ) )
+					el( 'p', { style: { fontSize: 13, color: '#666', marginTop: 8 } },
+						__( 'Newsletter coming soon — check back shortly.', 'unitwise-converters' )
 					)
 				)
+			);
+		},
+		save: function () { return null; },
+	} );
+
+	// ── Converter ────────────────────────────────────────────────────────────────
+
+	registerBlockType( 'unitwise/converter', {
+		apiVersion: 3,
+		attributes: {
+			from:         { type: 'string', default: '' },
+			to:           { type: 'string', default: '' },
+			defaultValue: { type: 'number', default: 1 },
+		},
+		edit: function ( props ) {
+			var a   = props.attributes;
+			var set = setter.bind( null, props );
+			return el( 'div', useBlockProps(),
+				el( InspectorControls, {},
+					el( c.PanelBody, { title: __( 'Converter', 'unitwise-converters' ), initialOpen: true },
+						el( c.TextControl, { label: __( 'From unit (e.g. grams)', 'unitwise-converters' ), value: a.from, onChange: set( 'from' ) } ),
+						el( c.TextControl, { label: __( 'To unit (e.g. kilograms)', 'unitwise-converters' ), value: a.to, onChange: set( 'to' ) } ),
+						el( c.NumberControl, { label: __( 'Default value', 'unitwise-converters' ), value: a.defaultValue, min: 0, onChange: function ( v ) { set( 'defaultValue' )( parseFloat( v ) || 1 ); } } )
+					)
+				),
+				preview( 'unitwise/converter', a )
+			);
+		},
+		save: function () { return null; },
+	} );
+
+	// ── Conversion Table ─────────────────────────────────────────────────────────
+
+	registerBlockType( 'unitwise/conversion-table', {
+		apiVersion: 3,
+		attributes: {
+			from: { type: 'string', default: '' },
+			to:   { type: 'string', default: '' },
+		},
+		edit: function ( props ) {
+			var a   = props.attributes;
+			var set = setter.bind( null, props );
+			return el( 'div', useBlockProps(),
+				el( InspectorControls, {},
+					el( c.PanelBody, { title: __( 'Conversion table', 'unitwise-converters' ), initialOpen: true },
+						el( c.TextControl, { label: __( 'From unit (e.g. grams)', 'unitwise-converters' ), value: a.from, onChange: set( 'from' ) } ),
+						el( c.TextControl, { label: __( 'To unit (e.g. kilograms)', 'unitwise-converters' ), value: a.to, onChange: set( 'to' ) } )
+					)
+				),
+				preview( 'unitwise/conversion-table', a )
+			);
+		},
+		save: function () { return null; },
+	} );
+
+	// ── Popular Converters ───────────────────────────────────────────────────────
+
+	registerBlockType( 'unitwise/popular-converters', {
+		apiVersion: 3,
+		attributes: {
+			category: { type: 'string', default: 'weight' },
+			limit:    { type: 'number', default: 12 },
+			title:    { type: 'string', default: '' },
+		},
+		edit: function ( props ) {
+			var a   = props.attributes;
+			var set = setter.bind( null, props );
+			return el( 'div', useBlockProps(),
+				el( InspectorControls, {},
+					el( c.PanelBody, { title: __( 'Popular converters', 'unitwise-converters' ), initialOpen: true },
+						el( c.TextControl, { label: __( 'Category slug (e.g. weight)', 'unitwise-converters' ), value: a.category, onChange: set( 'category' ) } ),
+						el( c.RangeControl, { label: __( 'Number to show', 'unitwise-converters' ), value: a.limit, min: 4, max: 48, onChange: set( 'limit' ) } ),
+						el( c.TextControl, { label: __( 'Optional heading override', 'unitwise-converters' ), value: a.title, onChange: set( 'title' ) } )
+					)
+				),
+				preview( 'unitwise/popular-converters', a )
 			);
 		},
 		save: function () { return null; },
