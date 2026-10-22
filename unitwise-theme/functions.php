@@ -79,10 +79,15 @@ add_action( 'wp_head',          'unitwise_theme_thin_archive_noindex', 1 );
 add_action( 'template_redirect', 'unitwise_theme_redirect_attachments' );
 
 function unitwise_theme_thin_archive_noindex(): void {
-	if ( is_date() || is_tag() || ( is_category() && ! is_tax( 'unitwise_category' ) )
+	if ( is_date() || is_tag()
 		|| ( is_paged() && ( is_home() || is_archive() ) )
 	) {
 		echo "<meta name=\"robots\" content=\"noindex, follow\">\n";
+		return;
+	}
+	// Allow large image previews and full snippets on indexable content pages.
+	if ( is_singular() || is_home() || is_category() || is_tax( 'unitwise_category' ) ) {
+		echo "<meta name=\"robots\" content=\"max-image-preview:large, max-snippet:-1, max-video-preview:-1\">\n";
 	}
 }
 
@@ -118,11 +123,12 @@ function unitwise_theme_enqueue(): void {
 		null
 	);
 
+	$css_path = get_template_directory() . '/assets/css/main.css';
 	wp_enqueue_style(
 		'unitwise-theme',
 		get_template_directory_uri() . '/assets/css/main.css',
 		[ 'unitwise-fonts' ],
-		wp_get_theme()->get( 'Version' )
+		file_exists( $css_path ) ? (string) filemtime( $css_path ) : wp_get_theme()->get( 'Version' )
 	);
 
 	wp_enqueue_script(

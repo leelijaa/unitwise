@@ -101,7 +101,8 @@
    Reset & base
    -------------------------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; font-size: var(--uw-base-size); }
+html { font-size: var(--uw-base-size); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 body { font-family: var(--uw-font-sans); line-height: var(--uw-line-height); color: var(--uw-text); background: var(--uw-bg); -webkit-font-smoothing: antialiased; }
 img, video { max-width: 100%; height: auto; display: block; }
 a { color: var(--uw-primary); text-decoration: underline; text-underline-offset: 2px; }
@@ -783,6 +784,21 @@ ul, ol { padding-left: 1.5em; }
 .silo-card__link:hover .silo-card__arrow {
 	opacity: 1; transform: translateX(0);
 }
+
+/* --------------------------------------------------------------------------
+   Silo about + FAQ section
+   -------------------------------------------------------------------------- */
+.silo-about { padding: var(--uw-space-12) 0; background: var(--uw-surface); border-top: 1px solid var(--uw-border); }
+.silo-about__inner { display: grid; grid-template-columns: 1fr 1fr; gap: var(--uw-space-10); }
+@media (max-width: 720px) { .silo-about__inner { grid-template-columns: 1fr; } }
+.silo-about__intro h2,
+.silo-about__faq h2 { font-size: clamp(1.125rem, 2.5vw, 1.375rem); margin-bottom: var(--uw-space-4); }
+.silo-about__intro p { color: var(--uw-text-muted); }
+.silo-faq { list-style: none; padding: 0; margin: 0; }
+.silo-faq__item { border-top: 1px solid var(--uw-border); padding: var(--uw-space-4) 0; }
+.silo-faq__item:last-child { border-bottom: 1px solid var(--uw-border); }
+.silo-faq dt { font-weight: 600; color: var(--uw-text); margin-bottom: var(--uw-space-2); }
+.silo-faq dd { color: var(--uw-text-muted); margin: 0; }
 
 /* --------------------------------------------------------------------------
    Converter detail page

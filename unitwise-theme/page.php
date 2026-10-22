@@ -11,7 +11,7 @@ the_post();
 <div class="container container--narrow">
 	<article id="post-<?php the_ID(); ?>" <?php post_class( 'entry' ); ?>>
 		<header class="entry-header">
-			<h1 class="entry-title"><?php the_title(); ?></h1>
+			<h1 class="entry-title"><?php echo esc_html( get_the_title() ); ?></h1>
 		</header>
 		<div class="entry-content">
 			<?php the_content(); ?>

@@ -18,6 +18,8 @@
 	const hamburger = document.querySelector('.hamburger-btn');
 	const mobileNav = document.querySelector('.mobile-nav');
 	if (hamburger && mobileNav) {
+		const iconMenu  = hamburger.querySelector('.icon-menu');
+		const iconClose = hamburger.querySelector('.icon-close');
 		hamburger.addEventListener('click', () => {
 			const open = mobileNav.hasAttribute('hidden');
 			if (open) {
@@ -27,14 +29,16 @@
 			}
 			mobileNav.classList.toggle('is-open', open);
 			hamburger.setAttribute('aria-expanded', String(open));
-			hamburger.querySelector('[aria-hidden]').textContent = open ? '✕' : '☰';
+			if (iconMenu)  iconMenu.hidden  = open;
+			if (iconClose) iconClose.hidden = !open;
 		});
 		document.addEventListener('keydown', (e) => {
 			if (e.key === 'Escape' && !mobileNav.hasAttribute('hidden')) {
 				mobileNav.setAttribute('hidden', '');
 				mobileNav.classList.remove('is-open');
 				hamburger.setAttribute('aria-expanded', 'false');
-				hamburger.querySelector('[aria-hidden]').textContent = '☰';
+				if (iconMenu)  iconMenu.hidden  = false;
+				if (iconClose) iconClose.hidden = true;
 				hamburger.focus();
 			}
 		});
@@ -54,7 +58,12 @@
 	}
 	function applyTheme (t) {
 		root.setAttribute('data-theme', t);
-		if (themeBtn) themeBtn.querySelector('[aria-hidden]').textContent = t === 'dark' ? '☀' : '🌙';
+		if (themeBtn) {
+			const moonEl = themeBtn.querySelector('.icon-moon');
+			const sunEl  = themeBtn.querySelector('.icon-sun');
+			if (moonEl) moonEl.hidden = (t === 'dark');
+			if (sunEl)  sunEl.hidden  = (t !== 'dark');
+		}
 	}
 
 	const stored = getStoredTheme();

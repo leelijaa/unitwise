@@ -108,6 +108,71 @@ $count = count( $posts );
 		</div>
 	</section>
 
+	<?php
+	/* ---- Intro + FAQ — gives the silo page text content for SEO ---- */
+	$cat_desc = ( $term && $term->description )
+		? $term->description
+		: ( $term
+			? sprintf(
+				/* translators: %s: category name e.g. "Weight & Mass" */
+				__( 'All %s converters — convert between any two units instantly with exact international factors.', 'unitwise-theme' ),
+				$term->name
+			)
+			: '' );
+
+	// Build a flat list of unit labels available in this category for FAQ copy.
+	$unit_labels = [];
+	if ( $term && class_exists( 'Unitwise_Registry' ) ) {
+		$cat_info = Unitwise_Registry::get_category( $term->slug );
+		if ( ! empty( $cat_info ) ) {
+			foreach ( Unitwise_Registry::get_all_slugs( $term->slug ) as $slug ) {
+				$unit_labels[] = Unitwise_Registry::get_label( $slug, true );
+			}
+		}
+	}
+	$units_list = ! empty( $unit_labels )
+		? implode( ', ', array_slice( $unit_labels, 0, -1 ) ) . ' and ' . end( $unit_labels )
+		: '';
+
+	if ( $term ) : ?>
+	<section class="silo-about" aria-label="<?php esc_attr_e( 'About these converters', 'unitwise-theme' ); ?>">
+		<div class="container silo-about__inner">
+			<div class="silo-about__intro">
+				<h2><?php printf( esc_html__( 'About %s Conversion', 'unitwise-theme' ), esc_html( $term->name ) ); ?></h2>
+				<p><?php echo esc_html( $cat_desc ); ?></p>
+				<?php if ( $units_list ) : ?>
+				<p>
+					<?php printf(
+						/* translators: 1: category name, 2: comma-separated unit list */
+						esc_html__( 'Supported %1$s units include: %2$s.', 'unitwise-theme' ),
+						esc_html( strtolower( $term->name ) ),
+						esc_html( $units_list )
+					); ?>
+				</p>
+				<?php endif; ?>
+			</div>
+
+			<div class="silo-about__faq">
+				<h2><?php esc_html_e( 'Frequently Asked Questions', 'unitwise-theme' ); ?></h2>
+				<dl class="silo-faq">
+					<div class="silo-faq__item">
+						<dt><?php printf( esc_html__( 'How do I use a %s converter?', 'unitwise-theme' ), esc_html( strtolower( $term->name ) ) ); ?></dt>
+						<dd><?php esc_html_e( 'Select a converter from the list above, enter your value in the input field, and the result appears instantly. No button press needed.', 'unitwise-theme' ); ?></dd>
+					</div>
+					<div class="silo-faq__item">
+						<dt><?php esc_html_e( 'Are the conversions accurate?', 'unitwise-theme' ); ?></dt>
+						<dd><?php esc_html_e( 'Yes — all converters use exact internationally standardised conversion factors with full floating-point precision.', 'unitwise-theme' ); ?></dd>
+					</div>
+					<div class="silo-faq__item">
+						<dt><?php esc_html_e( 'Do the converters work without JavaScript?', 'unitwise-theme' ); ?></dt>
+						<dd><?php esc_html_e( 'Yes — each converter page includes a static conversion table and worked example that display without JavaScript enabled.', 'unitwise-theme' ); ?></dd>
+					</div>
+				</dl>
+			</div>
+		</div>
+	</section>
+	<?php endif; ?>
+
 </main>
 
 <?php get_footer(); ?>

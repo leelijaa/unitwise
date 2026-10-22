@@ -251,20 +251,50 @@ class Unitwise_Schema {
 
 	private static function silo_schema( string $cat_slug ): void {
 		$cat      = Unitwise_Registry::get_category( $cat_slug );
+		$cat_name = $cat['name'] ?? ucfirst( $cat_slug );
 		$silo_url = home_url( "/{$cat_slug}/" );
 		$graph    = [
 			[
 				'@type'      => 'CollectionPage',
 				'@id'        => $silo_url . '#collection',
 				'url'        => $silo_url,
-				'name'       => ( $cat['name'] ?? ucfirst( $cat_slug ) ) . ' Converters',
+				'name'       => $cat_name . ' Converters',
 				'inLanguage' => get_bloginfo( 'language' ),
 				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 			],
 			self::breadcrumb( [
 				[ 'name' => __( 'Home', 'unitwise-converters' ), 'url' => home_url( '/' ) ],
-				[ 'name' => $cat['name'] ?? ucfirst( $cat_slug ), 'url' => $silo_url ],
+				[ 'name' => $cat_name, 'url' => $silo_url ],
 			] ),
+			[
+				'@type'      => 'FAQPage',
+				'mainEntity' => [
+					[
+						'@type'          => 'Question',
+						'name'           => sprintf( 'How do I use a %s converter?', strtolower( $cat_name ) ),
+						'acceptedAnswer' => [
+							'@type' => 'Answer',
+							'text'  => 'Select a converter from the list, enter your value, and the result appears instantly.',
+						],
+					],
+					[
+						'@type'          => 'Question',
+						'name'           => 'Are the conversions accurate?',
+						'acceptedAnswer' => [
+							'@type' => 'Answer',
+							'text'  => 'Yes — all converters use exact internationally standardised conversion factors with full floating-point precision.',
+						],
+					],
+					[
+						'@type'          => 'Question',
+						'name'           => 'Do the converters work without JavaScript?',
+						'acceptedAnswer' => [
+							'@type' => 'Answer',
+							'text'  => 'Yes — each converter page includes a static conversion table and worked example that display without JavaScript.',
+						],
+					],
+				],
+			],
 		];
 		self::print( [ '@context' => 'https://schema.org', '@graph' => $graph ] );
 	}
@@ -300,18 +330,10 @@ class Unitwise_Schema {
 				'isPartOf'   => [ '@id' => home_url( '/#website' ) ],
 			],
 			[
-				'@type'          => 'WebSite',
-				'@id'            => home_url( '/#website' ),
-				'name'           => get_bloginfo( 'name' ),
-				'url'            => home_url( '/' ),
-				'potentialAction' => [
-					'@type'       => 'SearchAction',
-					'target'      => [
-						'@type'       => 'EntryPoint',
-						'urlTemplate' => home_url( '/?s={search_term_string}' ),
-					],
-					'query-input' => 'required name=search_term_string',
-				],
+				'@type' => 'WebSite',
+				'@id'   => home_url( '/#website' ),
+				'name'  => get_bloginfo( 'name' ),
+				'url'   => home_url( '/' ),
 			],
 			$org_node,
 		];
