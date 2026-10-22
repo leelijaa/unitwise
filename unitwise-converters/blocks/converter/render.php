@@ -100,8 +100,8 @@ $result_id     = 'unitwise-result-' . $from . '-' . $to;
 		<p class="unitwise-formula">
 			<?php
 			printf(
-				/* translators: %s: formula string */
-				esc_html__( 'Formula: %s', 'unitwise-converters' ),
+				/* translators: %s: formula wrapped in a code element */
+				__( 'Formula: %s', 'unitwise-converters' ),
 				'<code>' . esc_html( $formula ) . '</code>'
 			);
 			?>

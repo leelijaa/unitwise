@@ -47,7 +47,7 @@ $blog_href = $blog_pid ? get_permalink( $blog_pid ) : home_url( '/blog/' );
 	<ul class="post-grid" role="list">
 		<?php while ( $recent_posts->have_posts() ) : $recent_posts->the_post();
 			$cats     = get_the_category();
-			$cat_name = $cats ? esc_html( $cats[0]->name ) : '';
+			$cat_name = $cats ? $cats[0]->name : '';
 			$words    = str_word_count( wp_strip_all_tags( get_the_content() ) );
 			$read_min = max( 1, (int) ceil( $words / 200 ) );
 		?>

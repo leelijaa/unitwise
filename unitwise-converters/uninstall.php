@@ -48,6 +48,10 @@ foreach ( $value_pages as $post_id ) {
 
 // Remove options and transients
 delete_option( 'uw_vp_sections' );
+delete_option( 'unitwise_homepage_seeded' );
 delete_transient( 'uw_value_pages_data' );
 delete_transient( 'uw_footer_cat_cols' );
 delete_transient( 'uw_footer_recent_posts' );
+foreach ( range( 1, 6 ) as $n ) {
+	delete_transient( 'uw_recent_posts_block_' . $n );
+}
