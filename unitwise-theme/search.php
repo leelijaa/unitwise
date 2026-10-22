@@ -13,8 +13,8 @@ get_header();
 			<h1 class="archive-title">
 				<?php
 				printf(
-					/* translators: %s: search query */
-					esc_html__( 'Search results for: %s', 'unitwise-theme' ),
+					/* translators: %s: search query wrapped in a span */
+					__( 'Search results for: %s', 'unitwise-theme' ),
 					'<span>' . esc_html( get_search_query() ) . '</span>'
 				);
 				?>

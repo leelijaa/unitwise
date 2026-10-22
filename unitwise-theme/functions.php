@@ -131,11 +131,12 @@ function unitwise_theme_enqueue(): void {
 		file_exists( $css_path ) ? (string) filemtime( $css_path ) : wp_get_theme()->get( 'Version' )
 	);
 
+	$js_path = get_template_directory() . '/assets/js/theme.js';
 	wp_enqueue_script(
 		'unitwise-theme',
 		get_template_directory_uri() . '/assets/js/theme.js',
 		[],
-		wp_get_theme()->get( 'Version' ),
+		file_exists( $js_path ) ? (string) filemtime( $js_path ) : wp_get_theme()->get( 'Version' ),
 		[ 'strategy' => 'defer', 'in_footer' => true ]
 	);
 
@@ -346,8 +347,6 @@ function unitwise_load_more_posts(): void {
 }
 
 // -------------------------------------------------------------------------
-
-// -------------------------------------------------------------------------
 // Disable author archives — redirect to homepage (crawl budget)
 
 add_action( 'template_redirect', 'unitwise_theme_disable_author_archives' );
@@ -358,8 +357,6 @@ function unitwise_theme_disable_author_archives(): void {
 		exit;
 	}
 }
-
-// -------------------------------------------------------------------------
 
 // -------------------------------------------------------------------------
 // Customizer — default OG image setting

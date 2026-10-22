@@ -10,7 +10,7 @@ get_header();
 	<div class="container">
 
 		<header class="archive-header">
-			<h1 class="archive-title"><?php the_archive_title(); ?></h1>
+			<h1 class="archive-title"><?php echo esc_html( get_the_archive_title() ); ?></h1>
 			<?php the_archive_description( '<p class="archive-description">', '</p>' ); ?>
 		</header>
 
